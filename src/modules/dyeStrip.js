@@ -23,7 +23,6 @@ import { API_BASE_URL, getWorkflow, updateWorkflow, getDye2KvArray, setDye2KvArr
 import { applyWorkflowToMainPageUI } from './profileManager.js';
 import { logger } from './logger.js';
 import { fitTextToBox, getTranslation } from './i18n.js';
-import { stripRightInset } from './header-strip-inset.js';
 import { openContextMenu } from './context-menu.js';
 import { setupPressAndHold, setSteamTileModeIfSafe, setHotWaterTileMode, showToast } from './ui.js';
 import { recipeIdPatch, SELECTION_KEY, RETURN_PARAM, profileFingerprint, profileDrifted, serializeSelection, resolveReturn, parseDyeReturn, changedFields, pluginRecordsDialIn, keepPreviousOnFailure, resolveRecordsDialIn, armedSelectionId, selectionModified, recipeCellState, recipeStripCells, favStripCells } from './dye-selection.js';
@@ -1093,29 +1092,20 @@ export function setStripMode(mode) {
     }
 }
 
-// ─── Header collision guard ──────────────────────────────────────────────────
-// The favourite strip and the right-hand controls are both absolutely positioned,
-// so neither pushes the other out of the way. With DYE2 on the strip starts 50px
-// further right and the DYE button widens the controls; add the Bengle cup warmer
-// and the five 225px cells run underneath them. Bound the strips at the controls'
-// measured edge and let the cells shrink into what is left — measured rather than
-// hardcoded so it follows cup-warmer/fullscreen visibility and translated labels.
-const STRIP_GAP = 20;
+// ─── Rail refit ──────────────────────────────────────────────────────────────
+// F/R cells used to share a horizontal band with the header controls. They now
+// fill the vertical rail, so a controls resize only needs a text refit.
 const STRIP_IDS = ['profile-fav-nav', 'dye-strip'];
 let controlsObserver = null;
 
 function syncStripBounds() {
-    const controls = document.getElementById('header-right-controls');
-    const header = controls?.closest('header');
-    if (!controls || !header) return;
-    const box = header.getBoundingClientRect();
-    const right = stripRightInset({ headerRight: box.right, headerWidth: box.width, headerLayoutWidth: header.offsetWidth,
-        controlsLeft: controls.getBoundingClientRect().left, gap: STRIP_GAP });
+    // The strips are a vertical rail now, not a header band beside the right-hand
+    // controls, so the old right inset would shrink them against the wrong edge.
     STRIP_IDS.forEach(id => {
         const nav = document.getElementById(id);
         if (!nav) return;
-        nav.style.right = `${right}px`;
-        fitStripCells(nav); // narrower cells wrap more, so the fit has to be redone
+        nav.style.right = '';
+        fitStripCells(nav);
     });
 }
 
@@ -1202,10 +1192,8 @@ function wireOnce() {
 // Reveal the DYE2 UI: shift the profile nav right to make room, show the toggle +
 // DYE button, wire listeners, load KV data, restore the saved P/F/R mode.
 export async function enableDye2Ui() {
-    const profileNav = document.getElementById('profile-fav-nav');
     const toggle = document.getElementById('dye-strip-toggle');
     const dyeBtn = document.getElementById('dye-open-btn');
-    if (profileNav) { profileNav.classList.remove('left-[37.5px]'); profileNav.classList.add('left-[80px]'); }
     if (toggle) toggle.style.display = '';   // revert to class-defined flex
     if (dyeBtn) dyeBtn.style.display = '';
     syncStripBounds();
@@ -1236,11 +1224,7 @@ export function disableDye2Ui() {
     if (toggle) toggle.style.display = 'none';
     if (dyeBtn) dyeBtn.style.display = 'none';
     if (dyeStrip) { dyeStrip.style.display = 'none'; dyeStrip.innerHTML = ''; }
-    if (profileNav) {
-        profileNav.style.display = '';
-        profileNav.classList.remove('left-[80px]');
-        profileNav.classList.add('left-[37.5px]');
-    }
+    if (profileNav) profileNav.style.display = '';
     clearStripBounds();
 }
 

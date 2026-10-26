@@ -1851,7 +1851,7 @@ export function renderQuickstartGuideSettings() {
 function initQuickstartGuideSettings() {
     const toggle = document.getElementById('help-icon-toggle');
     if (!toggle) return;
-    toggle.checked = !(window.isHelpButtonHidden?.() ?? false);
+    toggle.checked = !(window.isHelpButtonHidden?.() ?? true);
     toggle.addEventListener('change', () => {
         if (toggle.checked) window.showHelpButton?.();
         else window.hideHelpButton?.();

@@ -1,0 +1,1149 @@
+/* Home / Brewing skin. Visual source: decaid-custom-skin main @ 41a980e7.
+   Scoped to #main-page and the expanded chart so subpages keep Inter.
+   Hex is declared before oklch: a WebView that rejects oklch drops that
+   declaration and keeps the hex. */
+
+#main-page.skin-stage {
+    width: 100%;
+    height: 100%;
+}
+
+#main-page .skin {
+    --sk-bg: #ffffff;
+    --sk-bg: oklch(1 0 0);
+    --sk-fg: #0a0a0a;
+    --sk-muted: #737373;
+    --sk-line: #e5e5e5;
+    --sk-soft: #f5f5f5;
+    --sk-card: #ffffff;
+    --sk-selected: #d4d4d4;
+    --sk-selected: oklch(0.84 0 0);
+    --sk-on: #3a3a3a;
+    --sk-on: oklch(0.28 0 0);
+    --sk-on-muted: #d4d4d4;
+    --sk-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    --sk-ring: 0 0 0 1px rgba(10, 10, 10, 0.1);
+    --shot-pressure: #0d7a6f;
+    --shot-pressure: oklch(0.5 0.061 170.6);
+    --shot-flow: #3a4fc4;
+    --shot-flow: oklch(0.5 0.125 259.8);
+    --shot-temp: #c2413b;
+    --shot-temp: oklch(0.5 0.124 14.2);
+    --shot-weight: #8a6230;
+    --shot-weight: oklch(0.5 0.074 58.3);
+    --shot-pressure-target: #4aa399;
+    --shot-pressure-target: oklch(0.64 0.057 170.6);
+    --shot-flow-target: #7d8de0;
+    --shot-flow-target: oklch(0.64 0.087 259.8);
+    --shot-temp-target: #e08a86;
+    --shot-temp-target: oklch(0.64 0.113 14.2);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0;
+    background: var(--sk-bg);
+    color: var(--sk-fg);
+    font-family: "Geist Variable", sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] #main-page .skin {
+    --sk-bg: #0a0a0a;
+    --sk-fg: #fafafa;
+    --sk-muted: #a3a3a3;
+    --sk-line: #262626;
+    --sk-soft: #171717;
+    --sk-card: #141414;
+    --sk-selected: #5c5c5c;
+    --sk-selected: oklch(0.42 0 0);
+    --sk-on: #f4f4f4;
+    --sk-on: oklch(0.96 0 0);
+    --sk-on-muted: #525252;
+    --sk-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+    --sk-ring: 0 0 0 1px rgba(250, 250, 250, 0.12);
+    --shot-pressure: #3d9e90;
+    --shot-pressure: oklch(0.65 0.079 170.6);
+    --shot-flow: #8b9aef;
+    --shot-flow: oklch(0.65 0.116 259.8);
+    --shot-temp: #f0a09a;
+    --shot-temp: oklch(0.65 0.149 14.2);
+    --shot-weight: #c4a27a;
+    --shot-weight: oklch(0.65 0.096 58.3);
+    --shot-pressure-target: #2f6b62;
+    --shot-pressure-target: oklch(0.52 0.046 170.6);
+    --shot-flow-target: #4a568f;
+    --shot-flow-target: oklch(0.52 0.095 259.8);
+    --shot-temp-target: #8a4e4a;
+    --shot-temp-target: oklch(0.52 0.094 14.2);
+}
+
+#main-page .skin-chart-block {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#main-page .skin-chart-key {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+#main-page .skin-chart-key .skin-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#main-page .skin-chart-key .skin-kicker::before {
+    content: "";
+    width: 16px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--swatch);
+    display: block;
+}
+
+#expanded-chart-overlay {
+    width: 100% !important;
+    height: 100% !important;
+    font-family: "Geist Variable", sans-serif;
+}
+
+#expanded-chart {
+    width: 100% !important;
+    height: auto !important;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#main-page .skin button {
+    cursor: pointer;
+    font-family: inherit;
+    transition: scale 150ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+#main-page .skin button:focus-visible {
+    outline: 2px solid #737373;
+    outline-offset: 2px;
+}
+
+#main-page .skin button:active {
+    scale: 0.96;
+}
+
+#main-page button.skin-profile:active {
+    scale: 1;
+}
+
+#main-page .skin-header {
+    height: 48px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--sk-line);
+    background: var(--sk-bg);
+    color: var(--sk-fg);
+}
+
+#main-page .skin-status {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+#main-page .skin-status p {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+#main-page .skin-muted { color: var(--sk-muted); }
+#main-page .skin-fg { color: var(--sk-fg); }
+
+#main-page .skin-heat {
+    margin: 0;
+    color: var(--sk-fg);
+    font-weight: 500;
+}
+
+/* main.css .status-msg-* is 33px Inter. Home keeps those Streamline colours
+   and uses the design type: Geist via inherit, 14px on a 20px line, weight
+   500. Connection words (Connecting, Disconnected) are weight 400. */
+#main-page #machine-status {
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+}
+
+#main-page #machine-status.status-msg-green { color: var(--status-green-color); }
+#main-page #machine-status.status-msg-red { color: var(--status-red-color); }
+#main-page #machine-status.status-msg-clickable { color: var(--status-clickable-color); }
+
+#main-page #machine-status.is-link { font-weight: 400; }
+
+#main-page #machine-status .header-icon-btn {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 0;
+    vertical-align: middle;
+}
+
+#main-page #machine-status .skip-step-glyph {
+    width: 20px;
+    height: 20px;
+}
+
+#main-page .skin-header-end {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+}
+
+#main-page .skin-theme,
+#main-page .skin-tool {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sk-fg);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+}
+
+#main-page .skin-tool { gap: 6px; }
+
+#main-page .skin-tool:hover,
+#main-page .skin-theme:hover {
+    background: #ededed;
+}
+
+[data-theme="dark"] #main-page .skin-tool:hover,
+[data-theme="dark"] #main-page .skin-theme:hover {
+    background: #1f1f1f;
+}
+
+#main-page #settings-btn::before,
+#main-page #sleep-button::before,
+#main-page #history-open-btn::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    flex: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+#main-page #settings-btn::before { background-image: url("../ui/skin/icon-settings.svg"); }
+#main-page #sleep-button::before { background-image: url("../ui/skin/icon-sleep.svg"); }
+#main-page #history-open-btn::before { background-image: url("../ui/skin/icon-history.svg"); }
+
+[data-theme="dark"] #main-page #settings-btn::before,
+[data-theme="dark"] #main-page #sleep-button::before,
+[data-theme="dark"] #main-page #history-open-btn::before {
+    filter: invert(1);
+}
+
+#main-page .skin-switch {
+    width: 32px;
+    height: 18.4px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: #e5e5e5;
+    box-shadow: var(--sk-shadow);
+}
+
+#main-page .skin-switch i {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: #fff;
+    display: block;
+}
+
+#main-page .skin-switch.is-on {
+    justify-content: flex-end;
+    background: #0a0a0a;
+}
+
+#main-page .skin-dye-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+}
+
+#main-page .skin-dye-toggle button {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--sk-soft);
+    color: var(--sk-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#main-page .skin-dye-toggle button.bg-\[var\(--button-primary-bg\)\] {
+    background: var(--sk-selected);
+    color: var(--sk-on);
+}
+
+#main-page .skin-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+#main-page .skin-rail-slot {
+    width: 274px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+}
+
+#main-page .skin-rail {
+    width: 274px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    position: static;
+    right: auto;
+    left: auto;
+    top: auto;
+}
+
+#main-page button.skin-profile {
+    position: relative;
+    flex: 0 0 56px;
+    min-height: 56px;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 18.375px 12px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 14px;
+    background: var(--sk-soft);
+    color: var(--sk-fg);
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    line-height: 19.25px;
+    font-weight: 400;
+    cursor: pointer;
+    transition:
+        flex-grow 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        min-height 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        padding 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        gap 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        background-color 150ms cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 150ms cubic-bezier(0.32, 0.72, 0, 1),
+        color 150ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* profileManager marks the active favourite with this class and then
+   replaces the button's children, so the photo is a pseudo-element. */
+#main-page button.skin-profile.bg-\[var\(--mimoja-blue-v2\)\] {
+    flex-grow: 1;
+    gap: 8px;
+    padding: 12px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-ring);
+    cursor: default;
+}
+
+/* Photo well. profileManager rewrites the button text, so the picture is a
+   background on this pseudo-element, not a child. It stays painted while the
+   card is closed so the close fade still shows it. The open card's content
+   box is 218px (rail 242 minus 12px padding each side). */
+#main-page button.skin-profile::after {
+    content: "";
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    background-color: #ebebeb;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    transform: scale(0.98);
+    transform-origin: center top;
+    transition:
+        opacity 160ms cubic-bezier(0.4, 0, 1, 1),
+        transform 160ms cubic-bezier(0.4, 0, 1, 1),
+        min-height 460ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+[data-theme="dark"] #main-page button.skin-profile::after {
+    background-color: #222;
+}
+
+#main-page button.skin-profile.bg-\[var\(--mimoja-blue-v2\)\]::after {
+    min-height: 160px;
+    opacity: 1;
+    transform: none;
+    transition:
+        opacity 240ms cubic-bezier(0.77, 0, 0.175, 1),
+        transform 240ms cubic-bezier(0.77, 0, 0.175, 1),
+        min-height 460ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Slot 1 → preview-1 … slot 5 → preview-5. JPEG is declared first so a
+   WebView that drops image-set still has a picture. An empty favourite
+   (no text) shows the tint only. */
+#main-page #fav-profile-btn-0::after {
+    background-image: url("../ui/skin/profile/preview-1.jpg");
+    background-image: image-set(url("../ui/skin/profile/preview-1.webp") type("image/webp"), url("../ui/skin/profile/preview-1.jpg") type("image/jpeg"));
+}
+#main-page #fav-profile-btn-1::after {
+    background-image: url("../ui/skin/profile/preview-2.jpg");
+    background-image: image-set(url("../ui/skin/profile/preview-2.webp") type("image/webp"), url("../ui/skin/profile/preview-2.jpg") type("image/jpeg"));
+}
+#main-page #fav-profile-btn-2::after {
+    background-image: url("../ui/skin/profile/preview-3.jpg");
+    background-image: image-set(url("../ui/skin/profile/preview-3.webp") type("image/webp"), url("../ui/skin/profile/preview-3.jpg") type("image/jpeg"));
+}
+#main-page #fav-profile-btn-3::after {
+    background-image: url("../ui/skin/profile/preview-4.jpg");
+    background-image: image-set(url("../ui/skin/profile/preview-4.webp") type("image/webp"), url("../ui/skin/profile/preview-4.jpg") type("image/jpeg"));
+}
+#main-page #fav-profile-btn-4::after {
+    background-image: url("../ui/skin/profile/preview-5.jpg");
+    background-image: image-set(url("../ui/skin/profile/preview-5.webp") type("image/webp"), url("../ui/skin/profile/preview-5.jpg") type("image/jpeg"));
+}
+#main-page #fav-profile-btn-0:empty::after,
+#main-page #fav-profile-btn-1:empty::after,
+#main-page #fav-profile-btn-2:empty::after,
+#main-page #fav-profile-btn-3:empty::after,
+#main-page #fav-profile-btn-4:empty::after {
+    background-image: none;
+}
+
+#main-page #dye-strip button {
+    width: auto;
+    height: auto;
+    min-height: 56px;
+    flex: 0 0 auto;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 19.25px;
+}
+
+#main-page .skin-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+#main-page .skin-stack {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+}
+
+#main-page .skin-home,
+#main-page .skin-brew {
+    grid-area: 1 / 1;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+}
+
+#main-page:not(.is-espresso) .skin-brew { visibility: hidden; }
+#main-page.is-espresso .skin-home { visibility: hidden; }
+
+#main-page .skin-metrics {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    background: transparent;
+    border: 0;
+    width: auto;
+    height: auto;
+}
+
+#main-page .skin-metrics-head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 32px 16px 16px;
+}
+
+#main-page .skin-metrics-title { min-width: 0; max-width: 768px; }
+
+#main-page .skin-metrics-title h1 {
+    margin: 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    max-width: 420px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--sk-fg);
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 26px;
+    letter-spacing: -0.4px;
+}
+
+#main-page #yield-line {
+    margin: 0;
+    font-size: 14px;
+    line-height: 20.3px;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+#main-page .skin-view {
+    flex: none;
+    width: 218px;
+    height: 36px;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-shadow);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+}
+
+#main-page .skin-metric-stack {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#main-page .skin-rule {
+    flex: none;
+    height: 1px;
+    margin-left: 16px;
+    margin-right: 32px;
+    background: var(--sk-line);
+}
+
+#main-page .skin-metric {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 32px 0 16px;
+    opacity: 1;
+}
+
+#main-page .skin-metric-copy { flex: 1; min-width: 0; }
+
+#main-page .skin-kicker {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 14.4px;
+    letter-spacing: 0.96px;
+    text-transform: uppercase;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-figure-row {
+    height: 75px;
+    padding-top: 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+#main-page .skin-figure {
+    margin: 0;
+    position: static;
+    width: auto;
+    transform: none;
+    color: var(--sk-fg);
+    font-size: 58.96px;
+    font-weight: 500;
+    line-height: 58.96px;
+    letter-spacing: -2.6532px;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+}
+
+#main-page .skin-figure.is-empty,
+#main-page .skin-count-face.is-empty {
+    font-size: 28px;
+    line-height: 58.96px;
+    letter-spacing: 0;
+    color: var(--sk-muted);
+}
+
+/* The real node keeps the exact text other code reads back. The face is the
+   copy that counts. */
+#main-page .skin-count {
+    position: relative;
+    display: inline-block;
+    vertical-align: bottom;
+    max-width: 100%;
+}
+
+#main-page .skin-count-real {
+    color: transparent !important;
+}
+
+#main-page .skin-count-face {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+#main-page .skin-unit {
+    margin: 0;
+    font-size: 14px;
+    line-height: 23px;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-steps { display: flex; align-items: center; gap: 8px; flex: none; }
+
+#main-page .skin-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-shadow);
+}
+
+#main-page .skin-step img { width: 20px; height: 20px; }
+
+#main-page .skin-presets {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: auto;
+    height: auto;
+    margin: 0 32px 4px 16px;
+}
+
+#main-page .skin-presets button {
+    border: 0;
+    background: transparent;
+    color: var(--sk-muted);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 18px;
+    padding: 0;
+}
+
+#main-page .skin-presets.hidden { display: none; }
+
+#main-page .skin-side {
+    width: 352px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: var(--sk-soft);
+    border: 0;
+    overflow: auto;
+}
+
+#main-page #telemetry-row {
+    transform: none !important;
+    height: auto !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 64px;
+    gap: 8px;
+    width: 100%;
+}
+
+#main-page .skin-stat {
+    min-height: 56px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--sk-card);
+    border-radius: 14px;
+    box-shadow: var(--sk-ring);
+    color: var(--sk-fg);
+}
+
+#main-page .skin-stat strong {
+    font-size: 20px;
+    line-height: 20px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    color: var(--sk-fg);
+}
+
+#main-page .skin-job {
+    flex: 1;
+    min-height: 0;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    background: var(--sk-card);
+    border-radius: 14px;
+    box-shadow: var(--sk-ring);
+}
+
+#main-page .skin-job-head,
+#main-page .skin-job-actions {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#main-page .skin-job-actions { align-items: center; }
+
+#main-page .skin-job-note {
+    display: block;
+    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--sk-muted);
+    width: auto;
+}
+
+#main-page .skin-job-readout { text-align: right; position: relative; }
+
+#main-page .skin-steam-end {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+#main-page #steam-heater-switch { flex: none; align-self: center; }
+#main-page #steam-heater-switch[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
+
+#main-page #steam-heater-off { display: none; color: var(--sk-muted); }
+#main-page.is-steam-off #steam-heater-off { display: block; }
+
+/* The duration and flow nodes keep their text (other code reads it back).
+   While the heater is off they leave the readout so "Off" can sit there. */
+#main-page.is-steam-off #steam-duration-value,
+#main-page.is-steam-off #steam-flow-value,
+#main-page.is-steam-off #steam-duration-value + .skin-count-face,
+#main-page.is-steam-off #steam-flow-value + .skin-count-face {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+}
+
+#main-page.is-steam-off #steam-mode-toggle,
+#main-page.is-steam-off #steam-minus,
+#main-page.is-steam-off #steam-plus,
+#main-page.is-steam-off #steam-presets,
+#main-page.is-steam-off #steam-auto-presets,
+#main-page.is-steam-off #steam-milk-presets,
+#main-page.is-steam-off #steam-flow-presets {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+#main-page .skin-job-value {
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--sk-fg);
+}
+
+#main-page .skin-job-sub {
+    display: block;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--sk-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+#main-page .skin-brew { flex-direction: row; }
+
+#main-page .skin-brew-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 24px;
+}
+
+#main-page .skin-brew-head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 16px;
+}
+
+#main-page .skin-brew-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 26px;
+    letter-spacing: -0.4px;
+}
+
+#main-page .skin-brew-spec {
+    margin: 0;
+    font-size: 14px;
+    line-height: 20.3px;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-readouts {
+    width: 221px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    border-left: 1px solid var(--sk-line);
+}
+
+#main-page .skin-readouts .skin-metric { padding-right: 12px; }
+
+#main-page .skin-heat.is-alert {
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+[data-theme="dark"] #main-page .skin-heat.is-alert {
+    background: #450a0a;
+    color: #fecaca;
+}
+
+#main-page.is-espresso #ghc-coffee-btn,
+#main-page.is-espresso #ghc-water-btn,
+#main-page.is-espresso #ghc-steam-btn,
+#main-page.is-espresso #ghc-flush-btn { visibility: hidden; }
+
+#main-page.is-espresso #ghc-stop-btn { top: 16px; right: 237px; }
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px 16px;
+}
+
+#main-page #chart-wrap,
+#main-page #plotly-chart {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    border: 0;
+}
+
+/* Shot history opens over the main column. The shot-data table lives inside
+   it. showGhcControls writes an inline width and grid on the data panel; the
+   !important rules keep that from resizing the table. */
+#main-page #shot-history-panel {
+    display: none;
+    position: absolute;
+    inset: 8px;
+    z-index: 8;
+    width: auto !important;
+    height: auto !important;
+    top: 8px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    margin: 0;
+    background: var(--sk-bg);
+    color: var(--sk-fg);
+    border: 1px solid var(--sk-line);
+    border-radius: 14px;
+    box-shadow: var(--sk-ring);
+}
+
+#main-page #shot-history-panel.is-open { display: flex; }
+
+#main-page #shot-data-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100% !important;
+    height: auto !important;
+    margin: 12px 0 0;
+    padding: 0;
+    position: static;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+}
+
+#main-page .skin-overlay-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    font-size: 14px;
+}
+
+#main-page #shot-history-panel.is-open {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px 88px;
+}
+
+#main-page #shot-history-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.96px;
+    text-transform: uppercase;
+    color: var(--sk-muted);
+}
+
+#main-page #history-prev-btn,
+#main-page #history-next-btn {
+    position: absolute;
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    transform: translateY(-50%);
+}
+
+#main-page #history-prev-btn { left: 24px; }
+#main-page #history-next-btn { right: 24px; }
+#main-page #history-prev-btn svg,
+#main-page #history-next-btn svg { width: 24px; height: 24px; }
+
+#main-page #history-date,
+#main-page #history-profile-name {
+    margin: 0;
+    text-align: center;
+    color: var(--sk-fg);
+    font-family: inherit;
+}
+
+#main-page #history-date { font-size: 20px; font-weight: 500; letter-spacing: -0.4px; }
+#main-page #history-profile-name { font-size: 16px; }
+
+#main-page .skin-history-meta {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    color: var(--sk-muted);
+    font-size: 14px;
+}
+
+#main-page #shot-data-panel > .shot-data-cols {
+    margin-left: 152px;
+    width: calc(100% - 152px) !important;
+}
+
+#main-page #shot-data-panel .shot-data-cols {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 8px;
+}
+
+#main-page .skin-shot-rows { display: flex; flex-direction: column; gap: 12px; }
+
+#main-page .skin-shot-rows [role="row"] {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+#main-page #shot-data-panel [role="columnheader"],
+#main-page #shot-data-panel [role="rowheader"] {
+    color: var(--sk-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+#main-page #shot-data-panel [role="gridcell"] {
+    color: var(--sk-fg);
+    font-size: 16px;
+    line-height: 24px;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+}
+
+#main-page #ghc-controls {
+    position: absolute;
+    inset: 0;
+    width: auto !important;
+    height: auto !important;
+    margin: 0;
+    padding: 0;
+    border: 0 !important;
+    background: transparent !important;
+    pointer-events: none;
+    z-index: 6;
+}
+
+#main-page #ghc-controls button {
+    position: absolute;
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    height: 48px;
+    min-width: 85px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-shadow);
+}
+
+#main-page #ghc-controls button img { width: 20px; height: 20px; }
+
+#main-page #ghc-controls button span {
+    color: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    margin: 0;
+}
+
+#main-page #ghc-coffee-btn {
+    top: 72px;
+    right: 368px;
+    background: var(--sk-selected);
+    color: var(--sk-on);
+}
+
+#main-page #ghc-coffee-btn img { display: none; }
+
+#main-page #ghc-stop-btn {
+    top: 12px;
+    right: 16px;
+    width: 85px;
+    background: rgba(231, 0, 11, 0.1);
+    color: #e7000b;
+    box-shadow: none;
+}
+
+#main-page #ghc-stop-btn img { display: none; }
+#main-page #ghc-stop-btn span { color: #e7000b; }
+
+#main-page #ghc-steam-btn { right: 24px; bottom: 46%; }
+#main-page #ghc-flush-btn { right: 24px; bottom: 24%; }
+#main-page #ghc-water-btn { right: 24px; bottom: 4%; }
+
+#main-page #ghc-controls button.opacity-20 {
+    visibility: hidden;
+}
+
+html.skin-theme-changing #main-page .skin button,
+html.skin-theme-changing #main-page button.skin-profile,
+html.skin-theme-changing #main-page button.skin-profile::after {
+    transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #main-page .skin button,
+    #main-page button.skin-profile,
+    #main-page button.skin-profile::after {
+        animation: none;
+        transition: none;
+    }
+}

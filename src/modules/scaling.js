@@ -1,10 +1,16 @@
+import { mainStageFit } from './main-stage-fit.js';
+
 let isInitialScaleDone = false; // module-level: only first initScaling call adds .scaled
 
 export function initScaling() {
     const viewport = document.getElementById('scaling-container');
     const content = document.getElementById('scaled-content');
-    const designWidth = 1920;
-    const designHeight = 1200;
+    // Subpages stay on the 1920×1200 elastic canvas. The Home/Brewing skin fills
+    // the viewport from the 1340×800 design (main-stage-fit.js).
+    const SUB_W = 1920;
+    const SUB_H = 1200;
+    const MAIN_W = 1340;
+    const MAIN_H = 800;
     let baselineHeight = window.innerHeight;
     // How far the canvas is currently lifted to clear the soft keyboard, and the
     // breathing room left between the focused field and the keyboard's top edge.
@@ -101,6 +107,13 @@ export function initScaling() {
         }
     }
 
+    // Absent on a standalone subpage (profile selector). Hidden while a subpage
+    // is mounted in #subpage-host — router sets #main-page display to none.
+    function useMainCanvas() {
+        const main = document.getElementById('main-page');
+        return !!main && main.style.display !== 'none';
+    }
+
     function updateScale() {
         if (!viewport || !content) return;
 
@@ -137,26 +150,32 @@ export function initScaling() {
             keyboardShift = 0;
         }
 
-        // Width always fills. Vertically the canvas is elastic: the scale stays
-        // uniform (no text stretch) and the canvas takes however many design rows
-        // the screen leaves at that scale. #main-page is a flex column whose <main>
-        // absorbs the difference, so taller-than-16:10 screens (4:3 iPads) GROW past
-        // 1200 rows and shorter ones (Teclast 1340x800, 16:9 panels) SHRINK below it,
-        // with the change landing in the chart instead of in letterbox bars.
-        //
-        // The shrink stops at the rigid part of the main page -- 168px header +
-        // 150px profile/telemetry band + #chart-wrap's 450px min-height + the 242px
-        // footer band reserved by <main>'s padding-bottom. Below that the layout
-        // would clip, so screens flatter than 1920:1010 fall back to the TCL-style
-        // independent x/y squash
-        // (dui.tcl uses separate xscale_factor/yscale_factor for the same reason),
-        // clamped so round controls don't visibly turn into ellipses.
+        // Home/Brewing fills the screen. The stage stays 1340×800 on the tight
+        // axis and grows on the other, so a tablet with a different aspect gets
+        // the extra space in the flexible rows instead of a letterbox. Subpages
+        // keep the elastic 1920 canvas: width fills, the scale stays uniform,
+        // and the canvas takes however many design rows the screen leaves.
+        // Taller-than-16:10 screens GROW past 1200 rows and shorter ones SHRINK,
+        // down to the rigid part of a subpage that still assumes that canvas.
+        // Below 1920:1010 the layout would clip, so those screens fall back to
+        // the TCL-style independent x/y squash, clamped so round controls don't
+        // visibly turn into ellipses.
+        const onMain = useMainCanvas();
+        const designW = onMain ? MAIN_W : SUB_W;
+        const designH = onMain ? MAIN_H : SUB_H;
         const MIN_CANVAS_HEIGHT = 1010;
-        let sx = screenWidth / designWidth;
-        let sy = screenHeight / designHeight;
-        let canvasHeight = designHeight;
+        let sx = screenWidth / designW;
+        let sy = screenHeight / designH;
+        let canvasWidth = designW;
+        let canvasHeight = designH;
 
-        if (screenHeight / sx >= MIN_CANVAS_HEIGHT) {
+        if (onMain) {
+            const fit = mainStageFit(screenWidth, screenHeight);
+            sx = fit.scale;
+            sy = fit.scale;
+            canvasWidth = fit.stageW;
+            canvasHeight = fit.stageH;
+        } else if (screenHeight / sx >= MIN_CANVAS_HEIGHT) {
             sy = sx;
             canvasHeight = screenHeight / sx;
         } else {
@@ -181,10 +200,14 @@ export function initScaling() {
         sx *= uiZoom;
         sy *= uiZoom;
 
-        // Cap at 2.0x to prevent excessive scale on very high-DPI displays
+        // Cap at 2.0x to prevent excessive scale on very high-DPI displays.
+        // The Home stage is sized to fill, so capping it would bring the
+        // letterbox back. A zoomed main page still caps, same as before.
         const maxScale = 2.0;
-        if (sx > maxScale) sx = maxScale;
-        if (sy > maxScale) sy = maxScale;
+        if (!onMain || uiZoom > 1) {
+            if (sx > maxScale) sx = maxScale;
+            if (sy > maxScale) sy = maxScale;
+        }
 
         let offsetX, offsetY;
         if (uiZoom > 1.0) {
@@ -195,8 +218,11 @@ export function initScaling() {
             // right edge (x:1748-1920) — left-anchoring would push that off-screen first,
             // so right-anchor instead while it's shown, sacrificing chart/history overflow
             // on the left rather than the machine controls on the right.
-            const ghcVisible = document.getElementById('ghc-controls')?.style.display === 'flex';
-            offsetX = ghcVisible ? screenWidth - designWidth * sx : 0;
+            // The skin's GHC buttons are overlaid inside the 1340 stage, so a
+            // zoomed main page stays left-anchored. The 1920 subpage path still
+            // right-anchors while the GHC column is on the canvas edge.
+            const ghcVisible = !onMain && document.getElementById('ghc-controls')?.style.display === 'flex';
+            offsetX = ghcVisible ? screenWidth - canvasWidth * sx : 0;
             offsetY = 0;
             // Option C: allow scroll so no content is permanently inaccessible when zoomed.
             // On tablets this enables touch-scroll/pan to reach the chart and data panels.
@@ -204,7 +230,7 @@ export function initScaling() {
         } else {
             // Default: center whatever residual gap the stretch clamp left behind
             // (zero on the grow path -- the canvas fits the screen exactly there)
-            offsetX = (screenWidth - designWidth * sx) / 2;
+            offsetX = (screenWidth - canvasWidth * sx) / 2;
             offsetY = (screenHeight - canvasHeight * sy) / 2;
             viewport.style.overflow = 'hidden';
             // Not meant to be scrollable here -- positioning is done entirely via the
@@ -222,12 +248,13 @@ export function initScaling() {
         // out when the result is identical to the last pass so a keyboard's
         // per-frame resize storm doesn't re-write the transform or re-fire
         // streamline:scaleupdate, whose listeners do real layout work.
-        const geometry = `${screenWidth}|${screenHeight}|${canvasHeight}|${sx}|${sy}|${offsetX}|${offsetY}`;
+        const geometry = `${screenWidth}|${screenHeight}|${canvasWidth}|${canvasHeight}|${sx}|${sy}|${offsetX}|${offsetY}`;
         if (geometry === lastGeometry) return;
         lastGeometry = geometry;
 
-        content.style.width = `${designWidth}px`;
+        content.style.width = `${canvasWidth}px`;
         content.style.height = `${canvasHeight}px`;
+        viewport.style.backgroundColor = '';
         content.style.transformOrigin = 'top left';
         content.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${sx}, ${sy})`;
 
@@ -273,6 +300,10 @@ export function initScaling() {
         }, 150);
     };
     window.addEventListener('resize', onResize);
+    // router.js hides #main-page before mainpagehidden and shows it before
+    // mainpagevisible. Resize is also dispatched, but it is debounced above.
+    document.addEventListener('streamline:mainpagehidden', updateScale);
+    document.addEventListener('streamline:mainpagevisible', updateScale);
 
     // visualViewport fires reliably on iOS/Android when the soft keyboard appears/hides,
     // which doesn't always trigger window.resize in tablet WebViews.

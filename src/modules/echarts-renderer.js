@@ -67,7 +67,7 @@ function axisOption(config = {}, font = {}, isX = false) {
         silent: true,
         axisLabel: {
             color: font.color,
-            fontFamily: 'Inter, sans-serif',
+            fontFamily: font.family || 'Inter, sans-serif',
             fontSize: font.size || 16,
             showMaxLabel: !isX,
             formatter: value => tickText?.get(value) ?? (tickText ? `${Math.round(value * 10)}°` : `${value}${config.ticksuffix || ''}`)
@@ -78,7 +78,7 @@ function axisOption(config = {}, font = {}, isX = false) {
         name: config.title?.text,
         nameLocation: 'middle',
         nameGap: config.title ? 28 : 0,
-        nameTextStyle: { color: font.color, fontFamily: 'Inter, sans-serif', fontSize: config.title?.font?.size || 15 }
+        nameTextStyle: { color: font.color, fontFamily: font.family || 'Inter, sans-serif', fontSize: config.title?.font?.size || 15 }
     };
 }
 
@@ -173,7 +173,7 @@ function seriesOptions(traces, layout, projections) {
                     distance: annotation.xshift || 6,
                     offset: [0, -(annotation.yshift || 0)],
                     color: annotation.font?.color || trace.line?.color,
-                    fontFamily: 'Inter, sans-serif',
+                    fontFamily: layout.font?.family || 'Inter, sans-serif',
                     fontSize: annotation.font?.size || 16
                 },
                 data: [{ coord: [annotation.x, annotation.y] }]
@@ -213,7 +213,7 @@ function legendOptions(layout, traces, size, selected) {
         left: margin.l || 50,
         top: Math.max(0, (margin.t || 0) + (1 - config.y) * innerHeight - (config.yanchor === 'bottom' ? config.font?.size || 20 : 0)),
         orient: config.orientation === 'h' ? 'horizontal' : 'vertical',
-        textStyle: { color: font.color, fontFamily: 'Inter, sans-serif', fontSize: config.font?.size || 20 }
+        textStyle: { color: font.color, fontFamily: font.family || 'Inter, sans-serif', fontSize: config.font?.size || 20 }
     });
     const topNames = traces.filter(trace => trace.xaxis !== 'x2' && trace.yaxis !== 'y2').map(trace => trace.name);
     const legends = [makeLegend(layout.legend || { y: 1 }, topNames)];
@@ -248,7 +248,7 @@ function chartOption(traces, layout, size, selected, projections) {
     return {
         animation: false,
         backgroundColor: layout.paper_bgcolor || layout.plot_bgcolor || 'transparent',
-        textStyle: { color: font.color, fontFamily: 'Inter, sans-serif', fontSize: font.size },
+        textStyle: { color: font.color, fontFamily: font.family || 'Inter, sans-serif', fontSize: font.size },
         grid: gridOptions(layout, size),
         legend: legendOptions(layout, traces, size, selected),
         ...axesOptions(layout, traces),
