@@ -918,11 +918,10 @@
     border: 0;
 }
 
-/* Shot history and shot data open over the main column. showGhcControls
-   writes an inline width and grid on the data panel; the !important rules
-   keep the overlay geometry. */
-#main-page #shot-history-panel,
-#main-page #shot-data-panel {
+/* Shot history opens over the main column. The shot-data table lives inside
+   it. showGhcControls writes an inline width and grid on the data panel; the
+   !important rules keep that from resizing the table. */
+#main-page #shot-history-panel {
     display: none;
     position: absolute;
     inset: 8px;
@@ -941,8 +940,22 @@
     box-shadow: var(--sk-ring);
 }
 
-#main-page #shot-history-panel.is-open,
-#main-page #shot-data-panel.is-open { display: flex; }
+#main-page #shot-history-panel.is-open { display: flex; }
+
+#main-page #shot-data-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100% !important;
+    height: auto !important;
+    margin: 12px 0 0;
+    padding: 0;
+    position: static;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+}
 
 #main-page .skin-overlay-close {
     position: absolute;
@@ -1011,14 +1024,6 @@
     gap: 8px;
     color: var(--sk-muted);
     font-size: 14px;
-}
-
-#main-page #shot-data-panel.is-open {
-    flex-direction: column;
-    justify-content: center;
-    gap: 16px;
-    padding: 56px 32px 32px;
-    overflow: auto;
 }
 
 #main-page #shot-data-panel > .shot-data-cols {
