@@ -78,7 +78,8 @@ function renderMain(traces, layout, mode = 'full') {
         mainRenderDirty = true;
         return;
     }
-    renderECharts(element, traces, layout, mode);
+    const paintLayout = isMainChartActive() ? withSkinChartFont(layout) : layout;
+    renderECharts(element, traces, paintLayout, mode);
     mainRenderDirty = false;
 }
 
@@ -105,6 +106,12 @@ function getChartElement() {
 function isMainChartActive() {
     return document.getElementById('main-page')?.style.display !== 'none';
 }
+
+// Shallow copy so the shared profile-preview layout keeps Inter.
+function withSkinChartFont(layout) {
+    if (!layout) return layout;
+    return { ...layout, font: { ...(layout.font || {}), family: 'Geist Variable, sans-serif' } };
+}
 let currentSubstate = 'idle';
 let previousSubstateForShape = 'idle'; // To track step changes for vertical lines
 let lastWeight = 0;
@@ -125,7 +132,7 @@ const baseChartData = {
         name: 'Pressure',
         type: 'scatter',
         mode: 'lines',
-        line: { color: '#17c29a' },
+        line: { color: '#3c6f5e' },
         hoverinfo: 'name'
     },
     flow: {
@@ -134,7 +141,7 @@ const baseChartData = {
         name: 'Flow',
         type: 'scatter',
         mode: 'lines',
-        line: { color: '#0358cf' },
+        line: { color: '#3661a9' },
         hoverinfo: 'name'
     },
     targetPressure: {
@@ -143,7 +150,7 @@ const baseChartData = {
         name: 'Target Pressure',
         type: 'scatter',
         mode: 'lines',
-        line: { color: '#A0E0D1', dash: 'dot' },
+        line: { color: '#699887', dash: 'dash' },
         hoverinfo: 'name'
     },
     targetFlow: {
@@ -152,7 +159,7 @@ const baseChartData = {
         name: 'Target Flow',
         type: 'scatter',
         mode: 'lines',
-        line: { color: '#BED9FF', dash: 'dot' },
+        line: { color: '#6d8dc1', dash: 'dash' },
         hoverinfo: 'name'
     },
     groupTemperature: {
@@ -161,7 +168,7 @@ const baseChartData = {
         name: '°C',
         type: 'scatter',
         mode: 'lines',
-        line: {color: '#ff97a1'},
+        line: {color: '#9d404d'},
         hoverinfo: 'name'
     },
     targetTemperature: {
@@ -170,7 +177,7 @@ const baseChartData = {
         name: 'Target °C',
         type: 'scatter',
         mode: 'lines',
-        line: { color: '#FFD1D5', dash: 'dot' },
+        line: { color: '#c76e77', dash: 'dash' },
         hoverinfo: 'name'
     },
     weight: {
@@ -179,7 +186,7 @@ const baseChartData = {
         name: 'Weight',
         type: 'scatter',
         mode: 'lines',
-        line: { color: '#E9D3C3' }, // light mode
+        line: { color: '#835837' }, // light mode
         hoverinfo: 'name'
     }
 };
@@ -224,19 +231,19 @@ const baseLayout = {
     // was neither, so the plot read as a near-black hole punched in the panel.
     plot_bgcolor: 'transparent',
     paper_bgcolor: 'transparent',
-    font: { color: '#606579', size: 20 },
+    font: { color: '#a3a3a3', size: 13 },
     shapes: [], // Initialize shapes array for vertical lines
     xaxis: {
-        gridcolor: '#1E202B',
-        linecolor: '#606579',
-        tickcolor: '#606579',
+        gridcolor: '#262626',
+        linecolor: '#262626',
+        tickcolor: '#737373',
         dtick: 1,
         fixedrange: true
     },
     yaxis: {
-        gridcolor: '#1E202B',
-        linecolor: '#606579',
-        tickcolor: '#606579',
+        gridcolor: '#262626',
+        linecolor: '#262626',
+        tickcolor: '#737373',
         range: [0, 10],
         dtick: 1,
         fixedrange: true
@@ -255,20 +262,20 @@ const baseLayout = {
 
 const lightLayout = {
     ...baseLayout,
-    plot_bgcolor: 'white',
-    paper_bgcolor: 'white',
-    font: { color: '#959595', size: 20 },
+    plot_bgcolor: 'transparent',
+    paper_bgcolor: 'transparent',
+    font: { color: '#737373', size: 13 },
     xaxis: {
         ...baseLayout.xaxis,
-        gridcolor: '#E8E8E8',
-        linecolor: '#959595',
-        tickcolor: '#959595'
+        gridcolor: '#e5e5e5',
+        linecolor: '#e5e5e5',
+        tickcolor: '#a3a3a3'
     },
     yaxis: {
         ...baseLayout.yaxis,
-        gridcolor: '#E8E8E8',
-        linecolor: '#959595',
-        tickcolor: '#959595'
+        gridcolor: '#e5e5e5',
+        linecolor: '#e5e5e5',
+        tickcolor: '#a3a3a3'
     }
 };
 
@@ -635,9 +642,9 @@ function expandedAxisColors(theme) {
         // brighter than Text/Graph.Axis on purpose: the expanded view is
         // read at arm's length and the style guide has no spec for it.
         paper: 'transparent',
-        grid: dark ? '#1E202B' : '#E8E8E8',
-        line: dark ? '#606579' : '#959595',
-        font: dark ? '#9aa0b3' : '#606579',
+        grid: dark ? '#262626' : '#e5e5e5',
+        line: dark ? '#262626' : '#e5e5e5',
+        font: dark ? '#a3a3a3' : '#737373',
     };
 }
 
@@ -774,7 +781,7 @@ function renderExpandedCharts(mode = 'full') {
     const visibility = getSeriesVisibility(element, 5);
     expandedTopYMax = computeExpandedTopYMax(pickVisible(expandedTopSeriesYs(), visibility), expandedTopYMax);
     const layout = expandedLayout(theme, [0, expandedTopYMax], expandedTemperatureRange(), mode === 'live' ? liveXRange(pendingTime) : undefined);
-    renderECharts(element, [...expandedTopTraces(), ...expandedTempTraces()], layout, mode);
+    renderECharts(element, [...expandedTopTraces(), ...expandedTempTraces()], withSkinChartFont(layout), mode);
 }
 
 export function isExpandedChartOpen() { return expandedOpen; }
@@ -1480,14 +1487,14 @@ function drawProfilePreview(profile, isolated) {
         targetPressureTrace.line.width = 5;
         // The preview draws the target as the line itself, so it takes the
         // Ongoing token rather than the dotted Goal tint the live chart uses.
-        targetPressureTrace.line.color = theme === 'dark' ? '#00B087' : '#17c29a';
+        targetPressureTrace.line.color = theme === 'dark' ? '#5a9f88' : '#3c6f5e';
     }
 
     const targetFlowTrace = plotData.find(trace => trace.name === 'Target Flow');
     if (targetFlowTrace) {
         targetFlowTrace.line.dash = 'solid';
         targetFlowTrace.line.width = 5;
-        targetFlowTrace.line.color = '#0358cf'; // no dark Flow.Ongoing token exists
+        targetFlowTrace.line.color = theme === 'dark' ? '#648fd6' : '#3661a9';
     }
 
     const groupTempTrace = plotData.find(trace => trace.name === '°C');
@@ -1504,17 +1511,16 @@ function drawProfilePreview(profile, isolated) {
     renderMain(plotData, layout);
 }
 
-// Swap every themed trace to its Dark Mode/Border/Graph.* token, or back to
-// the Light Mode value baseChartData holds. Flow has no entry here: the style
-// guide's dark frame defines Graph.Flow.Goal but no Graph.Flow.Ongoing, so the
-// light #0358cf stands in until the design supplies one.
+// Skin series (decaid-custom-skin oklch, stored as hex so older WebViews paint).
+// These also recolor the profile-selector preview, which shares chartData.
 const DARK_TRACE_COLORS = {
-    pressure: '#00B087',        // Graph.Pressure.Ongoing
-    targetPressure: '#374D47',  // Graph.Pressure.Goal
-    targetFlow: '#23416C',      // Graph.Flow.Goal
-    groupTemperature: '#653F43',// Graph.Temp.Ongoing
-    targetTemperature: '#3E3233',// Graph.Temp.Goal
-    weight: '#695F57',          // Graph.Weight.Ongoing
+    pressure: '#5a9f88',
+    flow: '#648fd6',
+    targetPressure: '#4e7265',
+    targetFlow: '#48699f',
+    groupTemperature: '#da6473',
+    targetTemperature: '#975158',
+    weight: '#bb8052',
 };
 
 function updateChartColors(theme) {

@@ -82,8 +82,47 @@
     --shot-temp-target: oklch(0.52 0.094 14.2);
 }
 
+#main-page .skin-chart-block {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#main-page .skin-chart-key {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+#main-page .skin-chart-key .skin-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#main-page .skin-chart-key .skin-kicker::before {
+    content: "";
+    width: 16px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--swatch);
+    display: block;
+}
+
 #expanded-chart-overlay {
+    width: 100% !important;
+    height: 100% !important;
     font-family: "Geist Variable", sans-serif;
+}
+
+#expanded-chart {
+    width: 100% !important;
+    height: auto !important;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 #main-page .skin button {

@@ -288,8 +288,16 @@
                 </div>
                 <div class="skin-brew">
                     <div class="skin-brew-main">
-                        <div id="chart-wrap" class="skin-chart-wrap">
-                            <div id="plotly-chart" class="w-full h-full cursor-pointer" role="img" aria-label="Shot extraction graph"></div>
+                        <div class="skin-chart-block">
+                            <div class="skin-chart-key" aria-hidden="true">
+                                <span class="skin-kicker" style="--swatch: var(--shot-pressure)" data-i18n-key="Pressure">Pressure</span>
+                                <span class="skin-kicker" style="--swatch: var(--shot-flow)" data-i18n-key="Flow">Flow</span>
+                                <span class="skin-kicker" style="--swatch: var(--shot-temp)">Temp</span>
+                                <span class="skin-kicker" style="--swatch: var(--shot-weight)" data-i18n-key="Weight">Weight</span>
+                            </div>
+                            <div id="chart-wrap" class="skin-chart-wrap">
+                                <div id="plotly-chart" class="w-full h-full cursor-pointer" role="img" aria-label="Shot extraction graph"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
