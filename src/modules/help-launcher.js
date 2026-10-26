@@ -37,36 +37,43 @@ export function syncHelpButton() {
     });
 }
 
-// Effective hidden state from the two stored values. An explicit choice wins
-// ('1' hidden via long-press or the settings toggle, '0' shown via the toggle);
-// with nothing recorded, the button auto-hides from the 3rd startup on — it is
-// there for first-run discovery and after that it covers useful controls.
+// Hidden unless the user has explicitly turned the button on ('0' from the
+// settings switch). '1' (long-press or the switch) and a missing value both
+// hide it, so a fresh install does not show the button. `launches` is unused
+// here; the counter is still written so an older build sharing this KV store
+// keeps its own launch-count behaviour.
 export function helpHiddenFrom(preference, launches) {
-    if (preference !== null) return preference === '1';
-    return (parseInt(launches, 10) || 0) > 2;
-}
-
-// Should the implicit "retired by the launch count" state be written down as a
-// real preference? Until it is, hidden is only *implied* by a counter — and a
-// counter restarts at zero on a fresh install or a storage wipe, which is what
-// made the button reappear for people who had long since finished with it. As
-// an explicit preference it is in SYNCED_KEYS, so it survives an update.
-// Only the implicit state is promoted: an explicit '0' (turned back on from
-// Settings) is a real choice and is left alone.
-export function shouldPromoteHidden(preference, launches) {
-    return preference === null && helpHiddenFrom(preference, launches);
+    void launches;
+    return preference !== '0';
 }
 
 function helpHidden() {
     return helpHiddenFrom(localStorage.getItem(HIDE_KEY), localStorage.getItem(LAUNCH_KEY));
 }
 
+let helpAnchoringReady = false;
+
+// WebView: park the help button on the fullscreen slot and keep it there across
+// resizes and page changes. Safe to call again; the listeners are added once,
+// including when the button is turned on mid-session.
+export function ensureHelpAnchoring() {
+    if (helpAnchoringReady || !isInWebView()) return;
+    helpAnchoringReady = true;
+    document.documentElement.classList.add('help-webview');
+    const sync = () => requestAnimationFrame(syncHelpButton);
+    sync();
+    window.addEventListener('resize', sync);
+    document.addEventListener('streamline:scaleupdate', sync);
+    const observer = new MutationObserver(sync);
+    const host = document.getElementById('subpage-host');
+    const main = document.getElementById('main-page');
+    if (host) observer.observe(host, { childList: true, attributes: true, attributeFilter: ['style'] });
+    if (main) observer.observe(main, { attributes: true, attributeFilter: ['style'] });
+}
+
 export function initHelpLauncher() {
     if (document.getElementById('help-overlay-btn')) return;
     localStorage.setItem(LAUNCH_KEY, String((parseInt(localStorage.getItem(LAUNCH_KEY), 10) || 0) + 1));
-    if (shouldPromoteHidden(localStorage.getItem(HIDE_KEY), localStorage.getItem(LAUNCH_KEY))) {
-        localStorage.setItem(HIDE_KEY, '1');
-    }
     const button = document.createElement('button');
     button.id = 'help-overlay-btn';
     button.type = 'button';
@@ -78,18 +85,7 @@ export function initHelpLauncher() {
     document.body.appendChild(button);
     loadStyle('src/css/help-overlay.css').catch(() => {});
 
-    if (isInWebView() && !helpHidden()) {
-        document.documentElement.classList.add('help-webview');
-        const sync = () => requestAnimationFrame(syncHelpButton);
-        sync();
-        window.addEventListener('resize', sync);
-        document.addEventListener('streamline:scaleupdate', sync);
-        const observer = new MutationObserver(sync);
-        const host = document.getElementById('subpage-host');
-        const main = document.getElementById('main-page');
-        if (host) observer.observe(host, { childList: true, attributes: true, attributeFilter: ['style'] });
-        if (main) observer.observe(main, { attributes: true, attributeFilter: ['style'] });
-    }
+    if (!helpHidden()) ensureHelpAnchoring();
 
     let helpModule = null;
     const activate = async () => {
@@ -103,7 +99,10 @@ export function initHelpLauncher() {
         localStorage.setItem(HIDE_KEY, hidden ? '1' : '0');
         button.style.display = hidden ? 'none' : '';
         document.documentElement.classList.toggle('help-webview', !hidden && isInWebView());
-        if (!hidden) syncHelpButton();
+        if (!hidden) {
+            ensureHelpAnchoring();
+            syncHelpButton();
+        }
     };
     setupPressAndHold(button, activate, () => setHidden(true));
 

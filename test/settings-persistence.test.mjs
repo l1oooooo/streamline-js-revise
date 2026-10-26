@@ -276,53 +276,35 @@ test('a late hydrate still lets KV win over a default written this session', asy
     assert.deepEqual(applied, { language: 'de' });
 });
 
-// ── The help button's implicit "hidden" state ────────────────────────────────
-// help-launcher.js imports ui.js, so it cannot be imported here — lift the two
-// pure rules out of the source instead (same trick as settings-sync.test.mjs).
+// ── The help button stays off until the user turns it on ─────────────────────
+// help-launcher.js imports ui.js, so it cannot be imported here — lift the
+// pure rule out of the source instead (same trick as settings-sync.test.mjs).
 const helpRules = (() => {
     const source = readFileSync(new URL('../src/modules/help-launcher.js', import.meta.url), 'utf8');
-    const body = [
-        /export function helpHiddenFrom\(preference, launches\) \{[\s\S]*?\r?\n\}/,
-        /export function shouldPromoteHidden\(preference, launches\) \{[\s\S]*?\r?\n\}/,
-    ].map(pattern => {
-        const match = source.match(pattern);
-        assert.ok(match, `help-launcher.js: no match for ${pattern}`);
-        return match[0].replace('export ', '');
-    }).join('\n');
-    return new Function(`${body}\nreturn { helpHiddenFrom, shouldPromoteHidden };`)();
+    const match = source.match(/export function helpHiddenFrom\(preference, launches\) \{[\s\S]*?\r?\n\}/);
+    assert.ok(match, 'help-launcher.js: helpHiddenFrom not found');
+    return new Function(`${match[0].replace('export ', '')}\nreturn { helpHiddenFrom };`)();
 })();
 
-test('the help button retires on the 3rd launch and that becomes a real preference', () => {
-    const { helpHiddenFrom, shouldPromoteHidden } = helpRules;
-
-    assert.equal(helpHiddenFrom(null, '1'), false, 'first runs still show it');
-    assert.equal(shouldPromoteHidden(null, '1'), false, 'nothing to record yet');
-
-    assert.equal(helpHiddenFrom(null, '3'), true, 'auto-hidden from the 3rd startup on');
-    assert.equal(shouldPromoteHidden(null, '3'), true, 'the user let it go: write it down');
-});
-
-test('an explicit help-button choice is never overwritten by the launch count', () => {
-    const { helpHiddenFrom, shouldPromoteHidden } = helpRules;
-
-    // Turned back on from Settings, then kept using the app: the counter passes
-    // the threshold but the user's '0' still stands.
-    assert.equal(helpHiddenFrom('0', '99'), false);
-    assert.equal(shouldPromoteHidden('0', '99'), false, 'a real choice is left alone');
-
-    // Already hidden explicitly — nothing to promote.
-    assert.equal(helpHiddenFrom('1', '0'), true);
-    assert.equal(shouldPromoteHidden('1', '0'), false);
-});
-
-test('a wiped launch counter cannot resurrect a help button the user retired', () => {
-    // The bug this closes: after an update localStorage is empty, so the counter
-    // restarts at 0 and the button came back. With the preference promoted it is
-    // in SYNCED_KEYS, so it is restored from KV and still reads as hidden.
+test('the help button stays hidden until an explicit show', () => {
     const { helpHiddenFrom } = helpRules;
-    assert.equal(helpHiddenFrom(null, null), false, 'counter alone: the button is back');
-    assert.equal(helpHiddenFrom('1', null), true, 'the restored preference still hides it');
-    assert.ok(SYNCED_KEYS.includes('streamlineHelpHidden'), 'and it is mirrored into KV');
+    const launcher = readFileSync(new URL('../src/modules/help-launcher.js', import.meta.url), 'utf8');
+    const overlay = readFileSync(new URL('../src/modules/helpOverlay.js', import.meta.url), 'utf8');
+    const settings = readFileSync(new URL('../src/settings/settings.js', import.meta.url), 'utf8');
+
+    assert.equal(helpHiddenFrom(null, '1'), true, 'a fresh install hides it');
+    assert.equal(helpHiddenFrom(null, null), true, 'a wiped counter still hides it');
+    assert.equal(helpHiddenFrom('0', '99'), false, 'an explicit show wins');
+    assert.equal(helpHiddenFrom('1', '0'), true, 'an explicit hide wins');
+    assert.ok(SYNCED_KEYS.includes('streamlineHelpHidden'), 'the choice is mirrored into KV');
+
+    assert.doesNotMatch(launcher, /shouldPromoteHidden/);
+    assert.match(launcher, /export function ensureHelpAnchoring/);
+    assert.match(launcher, /if \(!hidden\) \{\s*ensureHelpAnchoring\(\);\s*syncHelpButton\(\);/);
+    assert.match(overlay, /helpHiddenFrom/);
+    assert.doesNotMatch(overlay, /\|\| 0\) > 2/);
+    assert.match(overlay, /ensureHelpAnchoring\(\)/);
+    assert.match(settings, /isHelpButtonHidden\?\.\(\) \?\? true/);
 });
 
 // ── Late hydrate: what the user changed this session wins ────────────────────

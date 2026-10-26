@@ -12,7 +12,7 @@
 // are English-only; wire into i18n.js if/when the app needs translated help.
 
 import { setupPressAndHold } from './ui.js';
-import { isInWebView, syncHelpButton } from './help-launcher.js';
+import { isInWebView, syncHelpButton, helpHiddenFrom, ensureHelpAnchoring } from './help-launcher.js';
 
 const RING_PAD = 6;        // px of breathing room around the highlighted element
 const GAP = 12;            // gap between ring and its label
@@ -168,16 +168,9 @@ function placeLabel(label, ring, placed, prefer = null) {
 }
 
 const HIDE_KEY = 'streamlineHelpHidden';
-const LAUNCH_KEY = 'streamlineHelpLaunches';
 
-// Effective hidden state. An explicit user choice wins ('1' hidden via long-press
-// or the settings toggle, '0' shown via the toggle). With no choice recorded, the
-// button auto-hides from the 3rd startup on — it exists for first-run discovery,
-// after that it just covers useful controls.
 function helpHidden() {
-    const pref = localStorage.getItem(HIDE_KEY);
-    if (pref !== null) return pref === '1';
-    return (parseInt(localStorage.getItem(LAUNCH_KEY), 10) || 0) > 2;
+    return helpHiddenFrom(localStorage.getItem(HIDE_KEY), localStorage.getItem('streamlineHelpLaunches'));
 }
 
 let overlay = null;
@@ -316,9 +309,10 @@ export function initializeHelpOverlay(button = null) {
             localStorage.setItem(HIDE_KEY, '1');
             document.documentElement.classList.remove('help-webview');
         } else {
-            localStorage.setItem(HIDE_KEY, '0'); // explicit "show" survives the startup auto-hide
+            localStorage.setItem(HIDE_KEY, '0');
             btn.style.display = '';
             if (isInWebView()) document.documentElement.classList.add('help-webview');
+            ensureHelpAnchoring();
             syncHelpButton();
         }
     };
@@ -328,10 +322,7 @@ export function initializeHelpOverlay(button = null) {
 
     // Webview only: keep the button parked over the fullscreen-toggle slot,
     // re-syncing on resize and whenever the router swaps the page.
-    if (isInWebView()) {
-        if (!helpHidden()) document.documentElement.classList.add('help-webview');
-        syncHelpButton();
-    }
+    if (isInWebView() && !helpHidden()) ensureHelpAnchoring();
 }
 
 export function toggleHelpOverlay() {
