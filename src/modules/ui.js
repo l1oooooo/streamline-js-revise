@@ -512,6 +512,17 @@ export function updateFlushValue(newValue) {
     });
 }
 
+function syncYieldLine() {
+    const line = document.getElementById('yield-line');
+    if (!line) return;
+    const drink = parseFloat(document.getElementById('drink-out-value')?.textContent);
+    let text;
+    if (!Number.isFinite(drink)) text = getTranslation('Stop at weight unavailable');
+    else if (drink === 0) text = getTranslation('Stop at weight off');
+    else text = `${getTranslation('Stop at weight')} ${drink} g`;
+    if (line.textContent !== text) line.textContent = text;
+}
+
 export function updateDrinkRatio() {
     const doseInEl = document.getElementById('dose-in-value');
     const drinkOutEl = document.getElementById('drink-out-value');
@@ -528,6 +539,7 @@ export function updateDrinkRatio() {
             ratioEl.textContent = '(1:--)';
         }
     }
+    syncYieldLine();
 }
 
 function makeEditable(element, onCommit) {

@@ -357,27 +357,389 @@
     min-width: 0;
     min-height: 0;
     display: flex;
+    flex-direction: column;
     position: relative;
 }
 
-#main-page .skin-legacy-body {
+#main-page .skin-stack {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#main-page .skin-home,
+#main-page .skin-brew {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+}
+
+#main-page .skin-home { flex: 1.35; }
+#main-page .skin-brew { flex: 0.8; }
+
+#main-page .skin-metrics {
     flex: 1;
     min-width: 0;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    background: transparent;
+    border: 0;
+    width: auto;
+    height: auto;
+}
+
+#main-page .skin-metrics-head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 32px 16px 16px;
+}
+
+#main-page .skin-metrics-title { min-width: 0; max-width: 768px; }
+
+#main-page .skin-metrics-title h1 {
+    margin: 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    max-width: 420px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--sk-fg);
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 26px;
+    letter-spacing: -0.4px;
+}
+
+#main-page #yield-line {
+    margin: 0;
+    font-size: 14px;
+    line-height: 20.3px;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+#main-page .skin-view {
+    flex: none;
+    width: 218px;
+    height: 36px;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-shadow);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+}
+
+#main-page .skin-metric-stack {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#main-page .skin-rule {
+    flex: none;
+    height: 1px;
+    margin-left: 16px;
+    margin-right: 32px;
+    background: var(--sk-line);
+}
+
+#main-page .skin-metric {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 32px 0 16px;
+    opacity: 1;
+}
+
+#main-page .skin-metric-copy { flex: 1; min-width: 0; }
+
+#main-page .skin-kicker {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 14.4px;
+    letter-spacing: 0.96px;
+    text-transform: uppercase;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-figure-row {
+    height: 75px;
+    padding-top: 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+#main-page .skin-figure {
+    margin: 0;
+    position: static;
+    width: auto;
+    transform: none;
+    color: var(--sk-fg);
+    font-size: 58.96px;
+    font-weight: 500;
+    line-height: 58.96px;
+    letter-spacing: -2.6532px;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+}
+
+#main-page .skin-unit {
+    margin: 0;
+    font-size: 14px;
+    line-height: 23px;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-steps { display: flex; align-items: center; gap: 8px; flex: none; }
+
+#main-page .skin-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-shadow);
+}
+
+#main-page .skin-step img { width: 20px; height: 20px; }
+
+#main-page .skin-presets {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: auto;
+    height: auto;
+    margin: 0 32px 4px 16px;
+}
+
+#main-page .skin-presets button {
+    border: 0;
+    background: transparent;
+    color: var(--sk-muted);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 18px;
+    padding: 0;
+}
+
+#main-page .skin-presets.hidden { display: none; }
+
+#main-page .skin-side {
+    width: 352px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: var(--sk-soft);
+    border: 0;
     overflow: auto;
 }
 
-#main-page #shot-settings {
-    height: auto;
-    width: 280px;
+#main-page #telemetry-row {
+    transform: none !important;
+    height: auto !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 64px;
+    gap: 8px;
+    width: 100%;
 }
 
-#main-page main {
-    padding-bottom: 0;
+#main-page .skin-stat {
+    min-height: 56px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--sk-card);
+    border-radius: 14px;
+    box-shadow: var(--sk-ring);
+    color: var(--sk-fg);
 }
 
-#main-page #chart-wrap {
+#main-page .skin-stat strong {
+    font-size: 20px;
+    line-height: 20px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    color: var(--sk-fg);
+}
+
+#main-page .skin-job {
+    flex: 1;
     min-height: 0;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    background: var(--sk-card);
+    border-radius: 14px;
+    box-shadow: var(--sk-ring);
+}
+
+#main-page .skin-job-head,
+#main-page .skin-job-actions {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#main-page .skin-job-actions { align-items: center; }
+
+#main-page .skin-job-note {
+    display: block;
+    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--sk-muted);
+    width: auto;
+}
+
+#main-page .skin-job-readout { text-align: right; }
+
+#main-page .skin-job-value {
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--sk-fg);
+}
+
+#main-page .skin-job-sub {
+    display: block;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--sk-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+#main-page .skin-brew-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px 16px;
+}
+
+#main-page #chart-wrap,
+#main-page #plotly-chart {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    border: 0;
+}
+
+/* History and shot data stay mounted. Commit 4 turns them into overlays. */
+#main-page #shot-history-panel,
+#main-page #shot-data-panel {
+    display: none;
+}
+
+#main-page #ghc-controls {
+    position: absolute;
+    inset: 0;
+    width: auto !important;
+    height: auto !important;
+    margin: 0;
+    padding: 0;
+    border: 0 !important;
+    background: transparent !important;
+    pointer-events: none;
+    z-index: 6;
+}
+
+#main-page #ghc-controls button {
+    position: absolute;
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    height: 48px;
+    min-width: 85px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-shadow);
+}
+
+#main-page #ghc-controls button img { width: 20px; height: 20px; }
+
+#main-page #ghc-controls button span {
+    color: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    margin: 0;
+}
+
+#main-page #ghc-coffee-btn {
+    top: 72px;
+    right: 368px;
+    background: var(--sk-selected);
+    color: var(--sk-on);
+}
+
+#main-page #ghc-coffee-btn img { display: none; }
+
+#main-page #ghc-stop-btn {
+    top: 12px;
+    right: 16px;
+    width: 85px;
+    background: rgba(231, 0, 11, 0.1);
+    color: #e7000b;
+    box-shadow: none;
+}
+
+#main-page #ghc-stop-btn img { display: none; }
+#main-page #ghc-stop-btn span { color: #e7000b; }
+
+#main-page #ghc-steam-btn { right: 24px; bottom: 46%; }
+#main-page #ghc-flush-btn { right: 24px; bottom: 24%; }
+#main-page #ghc-water-btn { right: 24px; bottom: 4%; }
+
+#main-page #ghc-controls button.opacity-20 {
+    visibility: hidden;
 }
 
 @media (max-width: 1340px), (max-height: 800px) {
