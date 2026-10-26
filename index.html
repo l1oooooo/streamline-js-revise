@@ -62,6 +62,7 @@
                 <span class="skin-switch" aria-hidden="true"><i></i></span>
             </button>
             <button id="history-open-btn" type="button" class="skin-tool" data-i18n-key="Shot history" data-fit-text>Shot history</button>
+            <button id="shot-data-open-btn" type="button" class="skin-tool" data-i18n-key="Shot data" data-fit-text>Shot data</button>
             <button id="dye-open-btn" type="button" class="skin-tool" aria-label="Open DYE" style="display:none">DYE</button>
             <button id="settings-btn" type="button" class="skin-tool settings-button" data-i18n-key="Settings" data-fit-text>Settings</button>
             <button id="sleep-button" type="button" class="skin-tool" data-i18n-key="Sleep" data-fit-text>Sleep</button>
@@ -303,6 +304,7 @@
                 </div>
             </div>
             <div id="shot-history-panel" aria-label="Shot History">
+                <button type="button" class="skin-overlay-close" aria-label="Close">Close</button>
                 <div id="shot-history-label" data-i18n-key="SHOT HISTORY">SHOT HISTORY</div>
                 <button id="history-prev-btn" type="button" aria-label="Previous Shot"><svg aria-hidden="true" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.25 27L42.75 27M42.75 27L27 11.25M42.75 27L27 42.75" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 <button id="history-next-btn" type="button" class="invisible" aria-label="Next Shot"><svg aria-hidden="true" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.25 27L42.75 27M42.75 27L27 11.25M42.75 27L27 42.75" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -317,6 +319,7 @@
                 </div>
             </div>
             <div id="shot-data-panel" role="grid" aria-label="Detailed Shot Data">
+                <button type="button" class="skin-overlay-close" aria-label="Close">Close</button>
                 <div class="shot-data-cols" role="row">
                     <div data-i18n-key="Time" role="columnheader">Time</div>
                     <div data-i18n-key="Grams" role="columnheader">Grams</div>

@@ -2108,9 +2108,33 @@ export function isScreensaverActive() {
     return screensaverActive;
 }
 
+function initSkinPanels() {
+    const historyBtn = document.getElementById('history-open-btn');
+    const dataBtn = document.getElementById('shot-data-open-btn');
+    const history = document.getElementById('shot-history-panel');
+    const data = document.getElementById('shot-data-panel');
+    if (!historyBtn || historyBtn.dataset.skinBound) return;
+    historyBtn.dataset.skinBound = '1';
+    const toggle = (panel, other) => {
+        if (!panel) return;
+        const open = !panel.classList.contains('is-open');
+        other?.classList.remove('is-open');
+        panel.classList.toggle('is-open', open);
+    };
+    historyBtn.addEventListener('click', () => toggle(history, data));
+    dataBtn?.addEventListener('click', () => toggle(data, history));
+    for (const panel of [history, data]) {
+        panel?.querySelector('.skin-overlay-close')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            panel.classList.remove('is-open');
+        });
+    }
+}
+
 export function initUI(callbacks) {
     disposeCalibratedSteamUI();
     initThemeToggle();
+    initSkinPanels();
     initFullscreenHandler();
     initLanguageSwitcher();
     initScaleClick(callbacks.onWeightClick);

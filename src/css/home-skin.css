@@ -705,10 +705,144 @@
     border: 0;
 }
 
-/* History and shot data stay mounted. Commit 4 turns them into overlays. */
+/* Shot history and shot data open over the main column. showGhcControls
+   writes an inline width and grid on the data panel; the !important rules
+   keep the overlay geometry. */
 #main-page #shot-history-panel,
 #main-page #shot-data-panel {
     display: none;
+    position: absolute;
+    inset: 8px;
+    z-index: 8;
+    width: auto !important;
+    height: auto !important;
+    top: 8px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    margin: 0;
+    background: var(--sk-bg);
+    color: var(--sk-fg);
+    border: 1px solid var(--sk-line);
+    border-radius: 14px;
+    box-shadow: var(--sk-ring);
+}
+
+#main-page #shot-history-panel.is-open,
+#main-page #shot-data-panel.is-open { display: flex; }
+
+#main-page .skin-overlay-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    font-size: 14px;
+}
+
+#main-page #shot-history-panel.is-open {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px 88px;
+}
+
+#main-page #shot-history-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.96px;
+    text-transform: uppercase;
+    color: var(--sk-muted);
+}
+
+#main-page #history-prev-btn,
+#main-page #history-next-btn {
+    position: absolute;
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sk-line);
+    border-radius: 8px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    transform: translateY(-50%);
+}
+
+#main-page #history-prev-btn { left: 24px; }
+#main-page #history-next-btn { right: 24px; }
+#main-page #history-prev-btn svg,
+#main-page #history-next-btn svg { width: 24px; height: 24px; }
+
+#main-page #history-date,
+#main-page #history-profile-name {
+    margin: 0;
+    text-align: center;
+    color: var(--sk-fg);
+    font-family: inherit;
+}
+
+#main-page #history-date { font-size: 20px; font-weight: 500; letter-spacing: -0.4px; }
+#main-page #history-profile-name { font-size: 16px; }
+
+#main-page .skin-history-meta {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    color: var(--sk-muted);
+    font-size: 14px;
+}
+
+#main-page #shot-data-panel.is-open {
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    padding: 56px 32px 32px;
+    overflow: auto;
+}
+
+#main-page #shot-data-panel > .shot-data-cols {
+    margin-left: 152px;
+    width: calc(100% - 152px) !important;
+}
+
+#main-page #shot-data-panel .shot-data-cols {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 8px;
+}
+
+#main-page .skin-shot-rows { display: flex; flex-direction: column; gap: 12px; }
+
+#main-page .skin-shot-rows [role="row"] {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+#main-page #shot-data-panel [role="columnheader"],
+#main-page #shot-data-panel [role="rowheader"] {
+    color: var(--sk-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+#main-page #shot-data-panel [role="gridcell"] {
+    color: var(--sk-fg);
+    font-size: 16px;
+    line-height: 24px;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
 }
 
 #main-page #ghc-controls {
