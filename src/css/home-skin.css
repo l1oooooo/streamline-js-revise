@@ -179,6 +179,36 @@
     font-weight: 500;
 }
 
+/* main.css .status-msg-* is 33px Inter. Home keeps those Streamline colours
+   and uses the design type: Geist via inherit, 14px on a 20px line, weight
+   500. Connection words (Connecting, Disconnected) are weight 400. */
+#main-page #machine-status {
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+}
+
+#main-page #machine-status.status-msg-green { color: var(--status-green-color); }
+#main-page #machine-status.status-msg-red { color: var(--status-red-color); }
+#main-page #machine-status.status-msg-clickable { color: var(--status-clickable-color); }
+
+#main-page #machine-status.is-link { font-weight: 400; }
+
+#main-page #machine-status .header-icon-btn {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 0;
+    vertical-align: middle;
+}
+
+#main-page #machine-status .skip-step-glyph {
+    width: 20px;
+    height: 20px;
+}
+
 #main-page .skin-header-end {
     margin-left: auto;
     display: flex;

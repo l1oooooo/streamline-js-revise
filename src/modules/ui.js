@@ -3196,6 +3196,8 @@ export function updateMachineStatus(data) {
     if (wasEspresso && state !== MachineState.ESPRESSO) stopCountTexts({ liveOnly: true });
     const statusAlert = state === 'needsWater' || state === 'error' || /error/i.test(String(status || ''));
     machineStatusEl.classList.toggle('is-alert', statusAlert);
+    // Connection words stay at the design's regular weight. Machine states use 500.
+    machineStatusEl.classList.toggle('is-link', resolveStatusStateKey(status, substate) === 'disconnected');
 
     // Define state checks early
     const isEspressoPreparingForShot = status?.toLowerCase().includes('espresso') &&
