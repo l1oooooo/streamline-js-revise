@@ -289,6 +289,12 @@
                 </div>
                 <div class="skin-brew">
                     <div class="skin-brew-main">
+                        <div class="skin-brew-head">
+                            <div>
+                                <p id="brew-profile-title" class="skin-brew-title"></p>
+                                <p id="brew-spec" class="skin-brew-spec"></p>
+                            </div>
+                        </div>
                         <div class="skin-chart-block">
                             <div class="skin-chart-key" aria-hidden="true">
                                 <span class="skin-kicker" style="--swatch: var(--shot-pressure)" data-i18n-key="Pressure">Pressure</span>
@@ -301,6 +307,38 @@
                             </div>
                         </div>
                     </div>
+                    <aside class="skin-readouts" aria-label="Shot readouts">
+                        <div class="skin-metric">
+                            <div class="skin-metric-copy">
+                                <p class="skin-kicker" data-i18n-key="Pressure">Pressure</p>
+                                <div class="skin-figure-row"><span id="brew-readout-pressure" class="skin-figure">—</span></div>
+                            </div>
+                        </div>
+                        <div class="skin-metric">
+                            <div class="skin-metric-copy">
+                                <p class="skin-kicker" data-i18n-key="Flow">Flow</p>
+                                <div class="skin-figure-row"><span id="brew-readout-flow" class="skin-figure">—</span></div>
+                            </div>
+                        </div>
+                        <div class="skin-metric">
+                            <div class="skin-metric-copy">
+                                <p class="skin-kicker">Temp</p>
+                                <div class="skin-figure-row"><span id="brew-readout-temp" class="skin-figure">—</span></div>
+                            </div>
+                        </div>
+                        <div class="skin-metric">
+                            <div class="skin-metric-copy">
+                                <p class="skin-kicker" data-i18n-key="Weight">Weight</p>
+                                <div class="skin-figure-row"><span id="brew-readout-weight" class="skin-figure">—</span></div>
+                            </div>
+                        </div>
+                        <div class="skin-metric">
+                            <div class="skin-metric-copy">
+                                <p class="skin-kicker" data-i18n-key="Time">Time</p>
+                                <div class="skin-figure-row"><span id="brew-readout-time" class="skin-figure">—</span></div>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
             <div id="shot-history-panel" aria-label="Shot History">

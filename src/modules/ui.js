@@ -521,6 +521,8 @@ function syncYieldLine() {
     else if (drink === 0) text = getTranslation('Stop at weight off');
     else text = `${getTranslation('Stop at weight')} ${drink} g`;
     if (line.textContent !== text) line.textContent = text;
+    const spec = document.getElementById('brew-spec');
+    if (spec && spec.textContent !== text) spec.textContent = text;
 }
 
 export function updateDrinkRatio() {
@@ -3061,6 +3063,10 @@ export function updateMachineStatus(data) {
     if (!machineStatusEl) {
         return;
     }
+    const mainPage = document.getElementById('main-page');
+    if (mainPage) mainPage.classList.toggle('is-espresso', state === MachineState.ESPRESSO);
+    const statusAlert = state === 'needsWater' || state === 'error' || /error/i.test(String(status || ''));
+    machineStatusEl.classList.toggle('is-alert', statusAlert);
 
     // Define state checks early
     const isEspressoPreparingForShot = status?.toLowerCase().includes('espresso') &&
@@ -3521,6 +3527,8 @@ export function updateProfileName(name) {
     if (profileNameEl) {
         profileNameEl.firstChild.textContent = getTranslation(name);
     }
+    const brewTitle = document.getElementById('brew-profile-title');
+    if (brewTitle) brewTitle.textContent = profileNameEl?.textContent?.trim() || getTranslation(name);
 }
 
 export function updateDrinkOut(doseOut) {

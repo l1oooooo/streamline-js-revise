@@ -403,19 +403,20 @@
 #main-page .skin-stack {
     flex: 1;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
 }
 
 #main-page .skin-home,
 #main-page .skin-brew {
+    grid-area: 1 / 1;
     min-width: 0;
     min-height: 0;
+    height: 100%;
     display: flex;
 }
 
-#main-page .skin-home { flex: 1.35; }
-#main-page .skin-brew { flex: 0.8; }
+#main-page:not(.is-espresso) .skin-brew { visibility: hidden; }
+#main-page.is-espresso .skin-home { visibility: hidden; }
 
 #main-page .skin-metrics {
     flex: 1;
@@ -687,7 +688,72 @@
     font-variant-numeric: tabular-nums;
 }
 
+#main-page .skin-brew { flex-direction: row; }
+
 #main-page .skin-brew-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 24px;
+}
+
+#main-page .skin-brew-head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 16px;
+}
+
+#main-page .skin-brew-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 26px;
+    letter-spacing: -0.4px;
+}
+
+#main-page .skin-brew-spec {
+    margin: 0;
+    font-size: 14px;
+    line-height: 20.3px;
+    color: var(--sk-muted);
+}
+
+#main-page .skin-readouts {
+    width: 221px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    border-left: 1px solid var(--sk-line);
+}
+
+#main-page .skin-readouts .skin-metric { padding-right: 12px; }
+
+#main-page .skin-heat.is-alert {
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+[data-theme="dark"] #main-page .skin-heat.is-alert {
+    background: #450a0a;
+    color: #fecaca;
+}
+
+#main-page.is-espresso #ghc-coffee-btn,
+#main-page.is-espresso #ghc-water-btn,
+#main-page.is-espresso #ghc-steam-btn,
+#main-page.is-espresso #ghc-flush-btn { visibility: hidden; }
+
+#main-page.is-espresso #ghc-stop-btn { top: 16px; right: 237px; }
     flex: 1;
     min-width: 0;
     min-height: 0;

@@ -946,6 +946,7 @@ export function updateChart(shotStartTime, data, weight, weightFlow = null, filt
 
     lastTargetPressureY = targetPressureY;
     lastTargetFlowY = targetFlowY;
+    paintBrewReadouts(data, weight, time);
 
     pendingTime = time;
     isLiveShot = true;
@@ -992,8 +993,24 @@ function resetChartState() {
     lightLayout.annotations = [];
 }
 
+function paintBrewReadout(id, text) {
+    const el = document.getElementById(id);
+    if (!el || el.textContent === text) return;
+    el.textContent = text;
+}
+
+function paintBrewReadouts(data, weight, time) {
+    const n = (value, digits) => Number.isFinite(value) ? value.toFixed(digits) : '—';
+    paintBrewReadout('brew-readout-pressure', n(data?.pressure, 1));
+    paintBrewReadout('brew-readout-flow', n(data?.flow, 1));
+    paintBrewReadout('brew-readout-temp', n(data?.groupTemperature, 1));
+    paintBrewReadout('brew-readout-weight', n(typeof weight === 'number' ? weight : NaN, 1));
+    paintBrewReadout('brew-readout-time', Number.isFinite(time) ? time.toFixed(1) : '—');
+}
+
 export function clearChart() {
     resetChartState();
+    paintBrewReadouts(null, NaN, NaN);
 
     const theme = currentTheme;
     const layout = theme === 'dark' ? darkLayout : lightLayout;
