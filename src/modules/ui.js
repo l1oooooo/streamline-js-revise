@@ -8,6 +8,7 @@ import { deriveSleepButtonAction, isWakePending, mayTapWakeMachine } from './scr
 import { isBengleMachine, isBengleModel } from './machine.js';
 import { STEAM_FLOW_PRESETS_BY_MODEL, MILK_STOP_PRESETS, resolveSteamFlowPresetsForModel, resolveSteamTileMode, steamSlotField as resolveSteamSlotField, milkTelemetryValue, steamFlowHighlightIndex, STEAM_SYNC_SYNCED, steamSyncField, foldSteamSyncState, shouldRetrySteamSync, steamSyncRetryDelay } from './steam-mode.js';
 import { STEAM_HEATER_FALLBACK_C, HEATER_BUSY_STATES, heaterNeedsFallback, applyHeaterReport, beginHeaterToggle, finishHeaterToggle, heaterCardPresentation } from './steam-heater-view.js';
+import { bindCountTexts, stopCountTexts } from './count-text-bind.js';
 import { API_DEBOUNCE_MS } from './workflow-watch.js';
 import { shouldUseNumpad } from './numpad-policy.js';
 import { openContextMenu } from './context-menu.js';
@@ -2260,6 +2261,7 @@ export function initUI(callbacks) {
     initThemeToggle();
     initSkinPanels();
     initSteamHeaterSwitch();
+    bindCountTexts();
     initFullscreenHandler();
     initLanguageSwitcher();
     initScaleClick(callbacks.onWeightClick);
@@ -3189,7 +3191,9 @@ export function updateMachineStatus(data) {
         return;
     }
     const mainPage = document.getElementById('main-page');
+    const wasEspresso = mainPage?.classList.contains('is-espresso') === true;
     if (mainPage) mainPage.classList.toggle('is-espresso', state === MachineState.ESPRESSO);
+    if (wasEspresso && state !== MachineState.ESPRESSO) stopCountTexts({ liveOnly: true });
     const statusAlert = state === 'needsWater' || state === 'error' || /error/i.test(String(status || ''));
     machineStatusEl.classList.toggle('is-alert', statusAlert);
 
