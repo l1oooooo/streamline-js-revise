@@ -718,7 +718,47 @@
     width: auto;
 }
 
-#main-page .skin-job-readout { text-align: right; }
+#main-page .skin-job-readout { text-align: right; position: relative; }
+
+#main-page .skin-steam-end {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+#main-page #steam-heater-switch { flex: none; align-self: center; }
+#main-page #steam-heater-switch[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
+
+#main-page #steam-heater-off { display: none; color: var(--sk-muted); }
+#main-page.is-steam-off #steam-heater-off { display: block; }
+
+/* The duration and flow nodes keep their text (other code reads it back).
+   While the heater is off they leave the readout so "Off" can sit there. */
+#main-page.is-steam-off #steam-duration-value,
+#main-page.is-steam-off #steam-flow-value,
+#main-page.is-steam-off #steam-duration-value + .skin-count-face,
+#main-page.is-steam-off #steam-flow-value + .skin-count-face {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+}
+
+#main-page.is-steam-off #steam-mode-toggle,
+#main-page.is-steam-off #steam-minus,
+#main-page.is-steam-off #steam-plus,
+#main-page.is-steam-off #steam-presets,
+#main-page.is-steam-off #steam-auto-presets,
+#main-page.is-steam-off #steam-milk-presets,
+#main-page.is-steam-off #steam-flow-presets {
+    opacity: 0.4;
+    pointer-events: none;
+}
 
 #main-page .skin-job-value {
     font-size: 24px;

@@ -1,12 +1,13 @@
 import { autoSteamPitcherLabel, compactAutoSteamTargetLabel, shouldKeepAutoSteamMode, steamAdjustmentControls } from './auto-steam-flow.js';
 import { manualSteamMode, steamModeCycle } from './auto-steam-capability.js';
-import { getProfile, getWorkflow, updateWorkflow, setMachineState, setTargetHotWaterVolume, setTargetHotWaterTemp, setTargetHotWaterDuration, setDe1Settings, setTargetSteamFlow, setTargetSteamDuration, setStopAtTemperature, resyncSteamFromStore, MachineState, persistSharedValue, FLUSH_DURATION_LAST_VALUE_KEY, isBlackScreenSaver, getSaverBrightness } from './api.js';
+import { getProfile, getWorkflow, updateWorkflow, setMachineState, setTargetHotWaterVolume, setTargetHotWaterTemp, setTargetHotWaterDuration, setDe1Settings, setTargetSteamFlow, setTargetSteamDuration, setStopAtTemperature, setSteamHeaterEnabled, setTargetSteamTemp, onWorkflowUpdated, resyncSteamFromStore, MachineState, persistSharedValue, FLUSH_DURATION_LAST_VALUE_KEY, isBlackScreenSaver, getSaverBrightness } from './api.js';
 import { resolveStatusStateKey, isActionTailSubstate } from './machine-status-policy.js';
 import { openDB, getSetting } from './idb.js';
 import { SCREENSAVER_CLOCK_FORMATS, SCREENSAVER_CLOCK_POSITIONS, SCREENSAVER_DATE_FORMATS, formatScreensaverClockDate, formatScreensaverClockTime, screensaverClockPositionStyle } from './screensaver-clock.js';
 import { deriveSleepButtonAction, isWakePending, mayTapWakeMachine } from './screensaver-policy.js';
 import { isBengleMachine, isBengleModel } from './machine.js';
 import { STEAM_FLOW_PRESETS_BY_MODEL, MILK_STOP_PRESETS, resolveSteamFlowPresetsForModel, resolveSteamTileMode, steamSlotField as resolveSteamSlotField, milkTelemetryValue, steamFlowHighlightIndex, STEAM_SYNC_SYNCED, steamSyncField, foldSteamSyncState, shouldRetrySteamSync, steamSyncRetryDelay } from './steam-mode.js';
+import { STEAM_HEATER_FALLBACK_C, HEATER_BUSY_STATES, heaterNeedsFallback, applyHeaterReport, beginHeaterToggle, finishHeaterToggle, heaterCardPresentation } from './steam-heater-view.js';
 import { API_DEBOUNCE_MS } from './workflow-watch.js';
 import { shouldUseNumpad } from './numpad-policy.js';
 import { openContextMenu } from './context-menu.js';
@@ -549,6 +550,7 @@ function makeEditable(element, onCommit) {
     if (shouldUseNumpad()) return;
     
     element.addEventListener('click', () => {
+        if (steamHeaterBlocksControls && ['steam-duration-value', 'steam-flow-value'].includes(element.id)) return;
         if (['steam-duration-value', 'steam-flow-value'].includes(element.id) && isAutoSteamMode()) return;
         if (element.parentNode.querySelector('input')) return;
 
@@ -971,7 +973,124 @@ export function formatSteamDuration(v) {
     return v === 0 ? '∞' : `${v}s`;
 }
 
+// Home steam card ↔ Settings > Calibration > Steam heater. The setting is
+// workflow steamSettings.targetTemperature (0 off, >= 135 on). Duration is
+// left alone, including 0, which still means "no timer".
+let heaterView = { status: 'unknown' };
+let heaterMachineBusy = false;
+let steamHeaterBlocksControls = false;
+
+function noteSteamHeaterTemp(tempC) {
+    const next = applyHeaterReport(heaterView, tempC, Date.now());
+    if (next === heaterView) return;
+    heaterView = next;
+    paintSteamHeater();
+}
+
+function noteSteamHeaterMachineState(state) {
+    const busy = HEATER_BUSY_STATES.includes(state);
+    if (busy === heaterMachineBusy) return;
+    heaterMachineBusy = busy;
+    paintSteamHeater();
+}
+
+function paintSteamControlBlock(blocked) {
+    steamHeaterBlocksControls = blocked;
+    // Disabled stays owned by the steam-mode code. pointer-events, the capture
+    // blocker below, and the guards in the steppers stop the card while the
+    // heater is off without fighting that.
+    const mode = document.getElementById('steam-mode-toggle');
+    if (mode) {
+        mode.setAttribute('aria-disabled', blocked ? 'true' : 'false');
+        mode.setAttribute('tabindex', blocked ? '-1' : '0');
+    }
+}
+
+function paintSteamHeater() {
+    const view = heaterCardPresentation(heaterView, heaterMachineBusy);
+    const page = document.getElementById('main-page');
+    if (page) page.classList.toggle('is-steam-off', view.showOff);
+    const off = document.getElementById('steam-heater-off');
+    if (off) {
+        off.textContent = getTranslation('Off');
+        off.setAttribute('aria-hidden', view.showOff ? 'false' : 'true');
+    }
+    for (const id of ['steam-duration-value', 'steam-flow-value']) {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('aria-hidden', view.showOff ? 'true' : 'false');
+    }
+    const sw = document.getElementById('steam-heater-switch');
+    if (sw) {
+        sw.classList.toggle('is-on', view.switchOn);
+        sw.setAttribute('aria-checked', view.switchOn ? 'true' : 'false');
+        sw.setAttribute('aria-disabled', view.switchDisabled ? 'true' : 'false');
+        sw.setAttribute('aria-busy', view.switchBusy ? 'true' : 'false');
+        sw.setAttribute('aria-label', getTranslation('Steam heater'));
+    }
+    paintSteamControlBlock(view.blockControls);
+}
+
+async function onSteamHeaterSwitch() {
+    if (heaterCardPresentation(heaterView, heaterMachineBusy).switchDisabled) return;
+    const pending = beginHeaterToggle(heaterView);
+    if (!pending) return;
+    const wantOn = pending.shownOn;
+    heaterView = pending;
+    paintSteamHeater();
+    try {
+        let temp;
+        if (wantOn) {
+            await setSteamHeaterEnabled(true);
+            temp = (await getWorkflow())?.steamSettings?.targetTemperature;
+            if (heaterNeedsFallback(temp)) {
+                await setTargetSteamTemp(STEAM_HEATER_FALLBACK_C);
+                temp = STEAM_HEATER_FALLBACK_C;
+            }
+        } else {
+            await setSteamHeaterEnabled(false);
+            temp = 0;
+        }
+        heaterView = finishHeaterToggle(heaterView, true, temp, Date.now());
+    } catch (error) {
+        logger.error('Steam heater switch failed:', error);
+        heaterView = finishHeaterToggle(heaterView, false, null, Date.now());
+        showToast(getTranslation('Steam heater did not change'), 3000, 'error');
+    }
+    paintSteamHeater();
+}
+
+function initSteamHeaterSwitch() {
+    const sw = document.getElementById('steam-heater-switch');
+    if (sw && !sw.dataset.heaterBound) {
+        sw.dataset.heaterBound = '1';
+        sw.addEventListener('click', () => { onSteamHeaterSwitch(); });
+    }
+    const block = (event) => {
+        if (!steamHeaterBlocksControls) return;
+        event.preventDefault();
+        event.stopPropagation();
+    };
+    for (const id of ['steam-minus', 'steam-plus', 'steam-mode-toggle', 'steam-duration-value', 'steam-flow-value', 'steam-presets', 'steam-flow-presets', 'steam-milk-presets', 'steam-auto-presets']) {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.heaterBlockBound) continue;
+        el.dataset.heaterBlockBound = '1';
+        el.addEventListener('pointerdown', block, true);
+        el.addEventListener('click', block, true);
+        el.addEventListener('keydown', block, true);
+    }
+    if (!initSteamHeaterSwitch.listening) {
+        initSteamHeaterSwitch.listening = true;
+        onWorkflowUpdated((workflow) => {
+            const temp = workflow?.steamSettings?.targetTemperature;
+            if (typeof temp === 'number') noteSteamHeaterTemp(temp);
+        });
+    }
+    paintSteamHeater();
+}
+
 export function updateSteamDisplay(data) {
+    if (typeof data?.targetTemperature === 'number') noteSteamHeaterTemp(data.targetTemperature);
+    else if (typeof data?.targetSteamTemp === 'number') noteSteamHeaterTemp(data.targetSteamTemp);
     const durationEl = document.getElementById('steam-duration-value');
     const flowEl = document.getElementById('steam-flow-value');
     const modeTimeEl = document.getElementById('steam-mode-time');
@@ -1159,6 +1278,7 @@ function syncSteamPresets() {
 }
 
 function incrementSteam() {
+    if (steamHeaterBlocksControls) return;
     if (steamMode === 'auto') { adjustAutoSteamSelection(0.1); return; }
     if (isAutoSteamMode()) return;
     const steamPlusBtn = document.getElementById('steam-plus');
@@ -1178,6 +1298,7 @@ function incrementSteam() {
 }
 
 function decrementSteam() {
+    if (steamHeaterBlocksControls) return;
     if (steamMode === 'auto') { adjustAutoSteamSelection(-0.1); return; }
     if (isAutoSteamMode()) return;
     const steamMinusBtn = document.getElementById('steam-minus');
@@ -1633,6 +1754,7 @@ export async function setSteamFlowPresetsFromMachineModel(model) {
 }
 
 async function toggleSteamMode() {
+    if (steamHeaterBlocksControls) return;
     if (calibratedSteamApplying) return;
     const milkAvailable = isBengleMachine() && milkProbePresent;
     const modes = steamModeCycle({
@@ -2137,6 +2259,7 @@ export function initUI(callbacks) {
     disposeCalibratedSteamUI();
     initThemeToggle();
     initSkinPanels();
+    initSteamHeaterSwitch();
     initFullscreenHandler();
     initLanguageSwitcher();
     initScaleClick(callbacks.onWeightClick);
@@ -2958,6 +3081,7 @@ export function updateSleepButton(state) {
     calibratedSteam?.observeMachine(state);
     const machineStateChanged = currentMachineState !== state;
     currentMachineState = state;
+    noteSteamHeaterMachineState(state);
     if (machineStateChanged) updateSteamPresetDisplay();
     const sleepButton = document.getElementById('sleep-button');
     if (sleepButton) {
@@ -3038,6 +3162,7 @@ function setMachineStatusContent(element, content, type = 'html') {
 // Rebuild translated output immediately, including active counter labels.
 document.addEventListener('streamline:languagechange', () => {
     if (lastMachineStatusData) updateMachineStatus(lastMachineStatusData);
+    paintSteamHeater();
 });
 
 export function updateMachineStatus(data) {

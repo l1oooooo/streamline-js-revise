@@ -210,9 +210,15 @@
                                         <span id="steam-mode-standard"><span id="steam-mode-time" data-i18n-key="Time">Time</span><span id="steam-mode-milk" data-i18n-key="Milk" style="display:none">Milk</span> | <span id="steam-mode-flow" data-i18n-key="Flow">Flow</span></span><span id="steam-mode-auto" data-fit-text style="display:none"><span data-steam-mode="auto">Auto</span> | <span data-steam-mode="flow" title="Flow">F</span> | <span data-steam-mode="time" title="Time">T</span></span>
                                     </span>
                                 </div>
-                                <div class="skin-job-readout" aria-labelledby="steam-label">
-                                    <span id="steam-duration-value" class="skin-job-value">30s</span>
-                                    <span id="steam-flow-value" class="skin-job-sub">1.0ml/s</span>
+                                <div class="skin-steam-end">
+                                    <div class="skin-job-readout" aria-labelledby="steam-label">
+                                        <span id="steam-heater-off" class="skin-job-value" data-i18n-key="Off">Off</span>
+                                        <span id="steam-duration-value" class="skin-job-value">30s</span>
+                                        <span id="steam-flow-value" class="skin-job-sub">1.0ml/s</span>
+                                    </div>
+                                    <button id="steam-heater-switch" type="button" class="skin-switch" role="switch" aria-checked="false" aria-disabled="true" aria-label="Steam heater">
+                                        <i></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="skin-job-actions">
