@@ -1,0 +1,400 @@
+/* Home / Brewing skin. Visual source: decaid-custom-skin main @ 41a980e7.
+   Scoped to #main-page and the expanded chart so subpages keep Inter.
+   Hex is declared before oklch: a WebView that rejects oklch drops that
+   declaration and keeps the hex. */
+
+#main-page.skin-stage {
+    width: 100%;
+    height: 100%;
+    background: #d6d3d1;
+}
+
+#main-page .skin {
+    --sk-bg: #ffffff;
+    --sk-bg: oklch(1 0 0);
+    --sk-fg: #0a0a0a;
+    --sk-muted: #737373;
+    --sk-line: #e5e5e5;
+    --sk-soft: #f5f5f5;
+    --sk-card: #ffffff;
+    --sk-selected: #d4d4d4;
+    --sk-selected: oklch(0.84 0 0);
+    --sk-on: #3a3a3a;
+    --sk-on: oklch(0.28 0 0);
+    --sk-on-muted: #d4d4d4;
+    --sk-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    --sk-ring: 0 0 0 1px rgba(10, 10, 10, 0.1);
+    --shot-pressure: #0d7a6f;
+    --shot-pressure: oklch(0.5 0.061 170.6);
+    --shot-flow: #3a4fc4;
+    --shot-flow: oklch(0.5 0.125 259.8);
+    --shot-temp: #c2413b;
+    --shot-temp: oklch(0.5 0.124 14.2);
+    --shot-weight: #8a6230;
+    --shot-weight: oklch(0.5 0.074 58.3);
+    --shot-pressure-target: #4aa399;
+    --shot-pressure-target: oklch(0.64 0.057 170.6);
+    --shot-flow-target: #7d8de0;
+    --shot-flow-target: oklch(0.64 0.087 259.8);
+    --shot-temp-target: #e08a86;
+    --shot-temp-target: oklch(0.64 0.113 14.2);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--sk-bg);
+    color: var(--sk-fg);
+    font-family: "Geist Variable", sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] #main-page .skin {
+    --sk-bg: #0a0a0a;
+    --sk-fg: #fafafa;
+    --sk-muted: #a3a3a3;
+    --sk-line: #262626;
+    --sk-soft: #171717;
+    --sk-card: #141414;
+    --sk-selected: #5c5c5c;
+    --sk-selected: oklch(0.42 0 0);
+    --sk-on: #f4f4f4;
+    --sk-on: oklch(0.96 0 0);
+    --sk-on-muted: #525252;
+    --sk-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+    --sk-ring: 0 0 0 1px rgba(250, 250, 250, 0.12);
+    --shot-pressure: #3d9e90;
+    --shot-pressure: oklch(0.65 0.079 170.6);
+    --shot-flow: #8b9aef;
+    --shot-flow: oklch(0.65 0.116 259.8);
+    --shot-temp: #f0a09a;
+    --shot-temp: oklch(0.65 0.149 14.2);
+    --shot-weight: #c4a27a;
+    --shot-weight: oklch(0.65 0.096 58.3);
+    --shot-pressure-target: #2f6b62;
+    --shot-pressure-target: oklch(0.52 0.046 170.6);
+    --shot-flow-target: #4a568f;
+    --shot-flow-target: oklch(0.52 0.095 259.8);
+    --shot-temp-target: #8a4e4a;
+    --shot-temp-target: oklch(0.52 0.094 14.2);
+}
+
+#expanded-chart-overlay {
+    font-family: "Geist Variable", sans-serif;
+}
+
+#main-page .skin button {
+    cursor: pointer;
+    font-family: inherit;
+    transition: scale 150ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+#main-page .skin button:focus-visible {
+    outline: 2px solid #737373;
+    outline-offset: 2px;
+}
+
+#main-page .skin button:active {
+    scale: 0.96;
+}
+
+#main-page button.skin-profile:active {
+    scale: 1;
+}
+
+#main-page .skin-header {
+    height: 48px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--sk-line);
+    background: var(--sk-bg);
+    color: var(--sk-fg);
+}
+
+#main-page .skin-status {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+#main-page .skin-status p {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+#main-page .skin-muted { color: var(--sk-muted); }
+#main-page .skin-fg { color: var(--sk-fg); }
+
+#main-page .skin-heat {
+    margin: 0;
+    color: var(--sk-fg);
+    font-weight: 500;
+}
+
+#main-page .skin-header-end {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+}
+
+#main-page .skin-theme,
+#main-page .skin-tool {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sk-fg);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+}
+
+#main-page .skin-tool { gap: 6px; }
+
+#main-page .skin-tool:hover,
+#main-page .skin-theme:hover {
+    background: #ededed;
+}
+
+[data-theme="dark"] #main-page .skin-tool:hover,
+[data-theme="dark"] #main-page .skin-theme:hover {
+    background: #1f1f1f;
+}
+
+#main-page #settings-btn::before,
+#main-page #sleep-button::before,
+#main-page #history-open-btn::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    flex: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+#main-page #settings-btn::before { background-image: url("../ui/skin/icon-settings.svg"); }
+#main-page #sleep-button::before { background-image: url("../ui/skin/icon-sleep.svg"); }
+#main-page #history-open-btn::before { background-image: url("../ui/skin/icon-history.svg"); }
+
+[data-theme="dark"] #main-page #settings-btn::before,
+[data-theme="dark"] #main-page #sleep-button::before,
+[data-theme="dark"] #main-page #history-open-btn::before {
+    filter: invert(1);
+}
+
+#main-page .skin-switch {
+    width: 32px;
+    height: 18.4px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: #e5e5e5;
+    box-shadow: var(--sk-shadow);
+}
+
+#main-page .skin-switch i {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: #fff;
+    display: block;
+}
+
+#main-page .skin-switch.is-on {
+    justify-content: flex-end;
+    background: #0a0a0a;
+}
+
+#main-page .skin-dye-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+}
+
+#main-page .skin-dye-toggle button {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--sk-soft);
+    color: var(--sk-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#main-page .skin-dye-toggle button.bg-\[var\(--button-primary-bg\)\] {
+    background: var(--sk-selected);
+    color: var(--sk-on);
+}
+
+#main-page .skin-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+#main-page .skin-rail-slot {
+    width: 274px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+}
+
+#main-page .skin-rail {
+    width: 274px;
+    flex: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    position: static;
+    right: auto;
+    left: auto;
+    top: auto;
+}
+
+#main-page button.skin-profile {
+    position: relative;
+    flex: 0 0 56px;
+    min-height: 56px;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 18.375px 12px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 14px;
+    background: var(--sk-soft);
+    color: var(--sk-fg);
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    line-height: 19.25px;
+    font-weight: 400;
+    cursor: pointer;
+    transition:
+        flex-grow 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        min-height 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        padding 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        gap 460ms cubic-bezier(0.77, 0, 0.175, 1),
+        background-color 150ms cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 150ms cubic-bezier(0.32, 0.72, 0, 1),
+        color 150ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* profileManager marks the active favourite with this class and then
+   replaces the button's children, so the photo is a pseudo-element. */
+#main-page button.skin-profile.bg-\[var\(--mimoja-blue-v2\)\] {
+    flex-grow: 1;
+    gap: 8px;
+    padding: 12px;
+    background: var(--sk-card);
+    color: var(--sk-fg);
+    box-shadow: var(--sk-ring);
+    cursor: default;
+}
+
+#main-page button.skin-profile::after {
+    content: "";
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    border-radius: 8px;
+    opacity: 0;
+    background: #ebebeb;
+    transition: opacity 200ms cubic-bezier(0.4, 0, 1, 1), min-height 460ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+[data-theme="dark"] #main-page button.skin-profile::after {
+    background: #222;
+}
+
+#main-page button.skin-profile.bg-\[var\(--mimoja-blue-v2\)\]::after {
+    min-height: 160px;
+    opacity: 1;
+    transition: opacity 460ms cubic-bezier(0.77, 0, 0.175, 1), min-height 460ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+#main-page #dye-strip button {
+    width: auto;
+    height: auto;
+    min-height: 56px;
+    flex: 0 0 auto;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 19.25px;
+}
+
+#main-page .skin-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    position: relative;
+}
+
+#main-page .skin-legacy-body {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+}
+
+#main-page #shot-settings {
+    height: auto;
+    width: 280px;
+}
+
+#main-page main {
+    padding-bottom: 0;
+}
+
+#main-page #chart-wrap {
+    min-height: 0;
+}
+
+@media (max-width: 1340px), (max-height: 800px) {
+    #main-page .skin { border-radius: 0; }
+}
+
+html.skin-theme-changing #main-page .skin button,
+html.skin-theme-changing #main-page button.skin-profile,
+html.skin-theme-changing #main-page button.skin-profile::after {
+    transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #main-page .skin button,
+    #main-page button.skin-profile,
+    #main-page button.skin-profile::after {
+        animation: none;
+        transition: none;
+    }
+}

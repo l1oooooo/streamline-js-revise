@@ -31,6 +31,8 @@
     <link href="src/css/app.css" rel="stylesheet" type="text/css" />
     <link href="src/css/dark-mode.css" rel="stylesheet" type="text/css" />
     <link href="src/css/main.css" rel="stylesheet" type="text/css" />
+    <link href="src/css/fonts-geist.css" rel="stylesheet" type="text/css" />
+    <link href="src/css/home-skin.css" rel="stylesheet" type="text/css" />
     <script src="src/modules/reconnecting-websocket.js" defer></script>
     <!-- First module in: installs the localStorage→KV mirror and starts the
          hydrate fetch before anything reads a preference. -->
@@ -40,45 +42,50 @@
 <body class="bg-[var(--bgmain-color)] min-h-screen">
     <div id="scaling-container" class=" text-clip">
         <div id="scaled-content" class="">
-        <div id="main-page">
+        <div id="main-page" class="skin-stage">
+        <div class="skin">
 
-    <!-- Header -->
-    <header class="bg-[var(--box-color)] border-b border-[var(--border-primary)] w-full h-[165px] relative" role="banner">
-        <!-- DYE2 strip mode toggle: P (profiles, default) / F (auto-favs) / R (recipes).
-             Extends Figma 2386:1116 (F/R: 54px circles, 12px gap) with a P circle on top, scaled to 44px so three fit the 165px header. See src/modules/dyeStrip.js. -->
-        <!-- Hidden via inline display:none (not the `hidden` attr — a Tailwind `flex`
-             display utility would override [hidden]). dyeStrip.js reveals it when DYE2 is enabled. -->
-        <div id="dye-strip-toggle" class="absolute left-[18px] top-[12.5px] w-[44px] h-[140px] flex flex-col gap-[4px] z-10" role="tablist" aria-label="Header strip mode" style="display:none">
-            <button id="dye-toggle-P" type="button" role="tab" aria-label="Profile favourites" class="w-[44px] h-[44px] flex-none flex items-center justify-center rounded-full text-[22px] leading-none font-bold">P</button>
-            <button id="dye-toggle-F" type="button" role="tab" aria-label="Auto favourites" class="w-[44px] h-[44px] flex-none flex items-center justify-center rounded-full text-[22px] leading-none font-bold">F</button>
-            <button id="dye-toggle-R" type="button" role="tab" aria-label="Recipes" class="w-[44px] h-[44px] flex-none flex items-center justify-center rounded-full text-[22px] leading-none font-bold">R</button>
+    <header class="skin-header" role="banner">
+        <!-- DYE2 P/F/R. Hidden via inline display:none (a Tailwind display utility would override [hidden]). -->
+        <div id="dye-strip-toggle" class="skin-dye-toggle" role="tablist" aria-label="Header strip mode" style="display:none">
+            <button id="dye-toggle-P" type="button" role="tab" aria-label="Profile favourites">P</button>
+            <button id="dye-toggle-F" type="button" role="tab" aria-label="Auto favourites">F</button>
+            <button id="dye-toggle-R" type="button" role="tab" aria-label="Recipes">R</button>
         </div>
-        <!-- Profile Favorites (P mode — existing behaviour, untouched logic). Stock
-             position left-[37.5px]; dyeStrip.js shifts it to left-[80px] only when DYE2 is enabled. -->
-        <nav id="profile-fav-nav" class="absolute left-[37.5px] top-[37.5px] flex gap-[15px]" aria-label="Favorite Profiles">
-            <button id="fav-profile-btn-0" class="flex justify-center items-center text-balance px-3 leading-tight overflow-hidden [overflow-wrap:anywhere] border-[var(--profile-button-outline-color)] bg-[var(--profile-button-background-color)] text-[var(--profile-button-text-color)] w-[225px] h-[90px] text-[21px] rounded-[15px] border-[1.5px] font-semibold" aria-label="Favorite profile 1"> </button>
-            <button id="fav-profile-btn-1" class="flex justify-center items-center text-balance px-3 leading-tight overflow-hidden [overflow-wrap:anywhere] border-[var(--profile-button-outline-color)] bg-[var(--profile-button-background-color)] text-[var(--profile-button-text-color)] w-[225px] h-[90px] text-[21px] rounded-[15px] border-[1.5px] font-semibold" aria-label="Favorite profile 2"> </button>
-            <button id="fav-profile-btn-2" class="flex justify-center items-center text-balance px-3 leading-tight overflow-hidden [overflow-wrap:anywhere] border-[var(--profile-button-outline-color)] bg-[var(--profile-button-background-color)] text-[var(--profile-button-text-color)] w-[225px] h-[90px] text-[21px] rounded-[15px] border-[1.5px] font-semibold" aria-label="Favorite profile 3"> </button>
-            <button id="fav-profile-btn-3" class="flex justify-center items-center text-balance px-3 leading-tight overflow-hidden [overflow-wrap:anywhere] border-[var(--profile-button-outline-color)] bg-[var(--profile-button-background-color)] text-[var(--profile-button-text-color)] w-[225px] h-[90px] text-[21px] rounded-[15px] border-[1.5px] font-semibold" aria-label="Favorite profile 4"></button>
-            <button id="fav-profile-btn-4" class="flex justify-center items-center text-balance px-3 leading-tight overflow-hidden [overflow-wrap:anywhere] border-[var(--profile-button-outline-color)] bg-[var(--profile-button-background-color)] text-[var(--profile-button-text-color)] w-[225px] h-[90px] text-[21px] rounded-[15px] border-[1.5px] font-semibold" aria-label="Favorite profile 5"></button>
-        </nav>
-        <!-- DYE2 auto-fav / recipe strip (F & R modes). Filled by src/modules/dyeStrip.js;
-             occupies the same slot as the profile nav and is hidden in P mode. -->
-        <nav id="dye-strip" class="absolute left-[80px] top-[37.5px] flex gap-[15px]" aria-label="DYE2 favourites and recipes" style="display:none"></nav>
-        <!-- Right side controls -->
-        <div id="header-right-controls" class="absolute right-[37.5px] top-[57px] flex items-center gap-[22.5px]">
-            <!-- DYE: opens the DYE2 plugin dashboard (Figma 2386:893). Wired in dyeStrip.js. -->
-            <button id="dye-open-btn" class="settings-button flex justify-center items-center min-h-0 w-[135px] h-[53.7px] whitespace-nowrap border-[1.5px] border-solid border-[var(--mimoja-blue-v2)] text-[var(--mimoja-blue-v2)] rounded-[22.5px] text-[21px] font-semibold" aria-label="Open DYE" style="display:none">DYE</button>
-            <button id="settings-btn" class="settings-button flex justify-center items-center min-h-0 w-[135px] h-[53.7px] whitespace-nowrap border-[1.5px] border-solid border-[var(--mimoja-blue-v2)] text-[var(--mimoja-blue-v2)] rounded-[22.5px] text-[21px] font-semibold" data-i18n-key="Settings" data-fit-text>Settings</button>
-            <button id="sleep-button" class="flex justify-center items-center min-h-0 w-[135px] h-[53.7px] whitespace-nowrap border-[1.5px] border-[var(--mimoja-blue-v2)] text-[var(--mimoja-blue-v2)] rounded-[22.5px] text-[21px] font-semibold" data-i18n-key="Sleep" data-fit-text>Sleep</button>
-            <button id="fullscreen-toggle-btn" title="Toggle fullscreen" class="  w-[50px] h-[50px] flex items-center justify-center  border border-[var(--mimoja-blue-v2)] rounded-[10px]  text-[var(--mimoja-blue-v2)]" aria-label="Toggle Fullscreen">
-                <svg class="enter-fullscreen-icon w-50 h-50" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                <svg class="exit-fullscreen-icon w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+        <div class="skin-status">
+            <p><span class="skin-muted">DE1 </span><span id="machine-status" class="skin-heat" data-i18n-key="Connecting" aria-live="assertive">Connecting</span></p>
+            <p id="scale-info-container" style="display: none;"><span class="skin-muted">Scale </span><span id="weight-text" class="skin-fg" data-i18n-key="Weight"></span> <span id="data-weight" class="skin-fg"></span></p>
+        </div>
+        <div id="header-right-controls" class="skin-header-end">
+            <button id="header-theme-toggle" type="button" class="skin-theme" aria-pressed="false">
+                <span id="header-theme-label">Light</span>
+                <span class="skin-switch" aria-hidden="true"><i></i></span>
+            </button>
+            <button id="history-open-btn" type="button" class="skin-tool" data-i18n-key="Shot history" data-fit-text>Shot history</button>
+            <button id="dye-open-btn" type="button" class="skin-tool" aria-label="Open DYE" style="display:none">DYE</button>
+            <button id="settings-btn" type="button" class="skin-tool settings-button" data-i18n-key="Settings" data-fit-text>Settings</button>
+            <button id="sleep-button" type="button" class="skin-tool" data-i18n-key="Sleep" data-fit-text>Sleep</button>
+            <button id="fullscreen-toggle-btn" type="button" title="Toggle fullscreen" class="skin-tool skin-tool-icon" aria-label="Toggle Fullscreen">
+                <svg class="enter-fullscreen-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                <svg class="exit-fullscreen-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
             </button>
         </div>
     </header>
 
-    <div class="flex-grow flex">
+    <div class="skin-body">
+        <div class="skin-rail-slot">
+        <nav id="profile-fav-nav" class="skin-rail" aria-label="Favorite Profiles">
+            <button id="fav-profile-btn-0" type="button" class="skin-profile" aria-label="Favorite profile 1"></button>
+            <button id="fav-profile-btn-1" type="button" class="skin-profile" aria-label="Favorite profile 2"></button>
+            <button id="fav-profile-btn-2" type="button" class="skin-profile" aria-label="Favorite profile 3"></button>
+            <button id="fav-profile-btn-3" type="button" class="skin-profile" aria-label="Favorite profile 4"></button>
+            <button id="fav-profile-btn-4" type="button" class="skin-profile" aria-label="Favorite profile 5"></button>
+        </nav>
+        <!-- DYE2 F/R strip. Filled by dyeStrip.js. Same rail slot as the profile nav; hidden in P mode. -->
+        <nav id="dye-strip" class="skin-rail" aria-label="DYE2 favourites and recipes" style="display:none"></nav>
+        </div>
+        <div class="skin-main">
+    <div class="flex-grow flex skin-legacy-body">
         <!-- Left Sidebar: Shot Settings -->
         <aside id="shot-settings" class="bg-[var(--box-color)] pl-[37.5px] pr-3 md:pr-[6px] py-3 flex flex-col justify-around border-r border-[var(--border-primary)] w-[480px] h-[1036px]" aria-label="Shot Settings">
             <!-- Grind -->
@@ -277,14 +284,7 @@
                                 <div id="cupwarmer-info-container" style="display: none;" role="button" tabindex="0" aria-pressed="false" aria-label="Toggle Cup Warmer">
                                     <p><span id="cupwarmer-text" class="no-select text-[var(--mimoja-blue-v2)] text-[22.5px] font-semibold font-['Inter'] leading-6" data-i18n-key="Cups">Cups</span>&nbsp;&nbsp;<span id="data-cupwarmer-temp" class="text-[var(--mimoja-blue-v2)] text-[22.5px] font-semibold font-['NotoSansMono'] leading-6 no-select">--</span></p>
                                 </div>
-                                <!-- Scale weight sits hard right of the telemetry row (ml-auto), away from the machine readings. -->
-                                <div id="scale-info-container" class="ml-auto" style="display: none;">
-                                    <p><span id = 'weight-text' class="no-select text-[var(--data-card-title-text-color)] text-[22.5px] font-semibold font-['Inter'] leading-6" data-i18n-key="Weight"></span>&nbsp;&nbsp;<span id="data-weight" class="text-[var(--mimoja-blue-v2)] text-[22.5px] font-extrabold font-['NotoSansMono'] leading-6 no-select"> </span></p>
-                                </div>
                             </div>
-                        </div>
-                        <div id="machine-status" class="w-[556px] absolute top-[22px] py-[10px] right-[44px] text-right justify-center text-nowrap text-[30px] font-semibold font-['Inter'] leading-8 tracking-wide" data-i18n-key="Connecting" aria-live="assertive">
-                            Connecting
                         </div>
                     </div>
 
@@ -387,6 +387,9 @@
             </div>
         </main>
     </div>
+        </div><!-- .skin-main -->
+    </div><!-- .skin-body -->
+        </div><!-- .skin -->
         </div><!-- #main-page -->
         <div id="subpage-host" style="display:none;"></div>
 

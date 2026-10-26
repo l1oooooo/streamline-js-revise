@@ -133,4 +133,29 @@ function lift(shift, rectTop, rectBottom, visibleHeight) {
     assert.strictEqual(down, 0, 'keyboard down must clear the lift');
 }
 
+// Home/Brewing contain fit (scaling.js useMainCanvas path). The skin stage is
+// 1340×800; scale is uniform and the leftover is a letterbox, not a squash.
+// Subpage assertions above stay on fit() — that path is unchanged.
+const MAIN_W = 1340, MAIN_H = 800;
+function fitMain(w, h) {
+    const s = Math.min(w / MAIN_W, h / MAIN_H);
+    return { sx: s, sy: s, canvasW: MAIN_W, canvasH: MAIN_H, gutterX: w - MAIN_W * s, gutterY: h - MAIN_H * s };
+}
+{
+    const exact = fitMain(1340, 800);
+    assert.strictEqual(exact.sx, 1);
+    assert.strictEqual(exact.sy, 1);
+    assert.ok(Math.abs(exact.gutterX) < 0.5 && Math.abs(exact.gutterY) < 0.5, '1340x800 fills the stage');
+
+    const tablet = fitMain(1920, 1200);
+    assert.strictEqual(tablet.sx, tablet.sy, 'main stage stays uniform on a 16:10 panel');
+    assert.ok(tablet.gutterY > 1, '16:10 panel letterboxes the shorter stage');
+    assert.ok(Math.abs(tablet.gutterX) < 0.5, '16:10 panel meets the stage width');
+
+    const short = fitMain(1340, 736);
+    assert.strictEqual(short.sx, short.sy);
+    assert.ok(Math.abs(short.gutterY) < 0.5, 'short panel meets the stage height');
+    assert.ok(short.gutterX > 1, 'short panel letterboxes the sides');
+}
+
 console.log('ok — scaling fit math');

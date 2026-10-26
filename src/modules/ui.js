@@ -1682,31 +1682,63 @@ export function setSteamTileModeIfSafe(mode) {
 }
 
 
+function applyDocumentTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    document.documentElement.classList.add('skin-theme-changing');
+    requestAnimationFrame(() => document.documentElement.classList.remove('skin-theme-changing'));
+    syncHeaderThemeSwitch(theme);
+
+    // Dynamically import the chart module and apply theme if chart element exists
+    if (document.getElementById('plotly-chart')) {
+        import('./chart.js').then((chartModule) => {
+            chartModule.setTheme(theme);
+        }).catch(error => {
+            console.error('Error importing chart module:', error);
+        });
+    }
+}
+
+function syncHeaderThemeSwitch(theme) {
+    const headerToggle = document.getElementById('header-theme-toggle');
+    if (!headerToggle) return;
+    const dark = theme === 'dark';
+    headerToggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    headerToggle.querySelector('.skin-switch')?.classList.toggle('is-on', dark);
+    const label = document.getElementById('header-theme-label');
+    if (label) label.textContent = getTranslation(dark ? 'Dark' : 'Light');
+}
+
 export function initThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
-    if (!themeToggle) return;
-
-    const applyTheme = (theme) => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-
-        // Dynamically import the chart module and apply theme if chart element exists
-        if (document.getElementById('plotly-chart')) {
-            import('./chart.js').then((chartModule) => {
-                chartModule.setTheme(theme);
-            }).catch(error => {
-                console.error('Error importing chart module:', error);
-            });
-        }
-    };
-
+    const headerToggle = document.getElementById('header-theme-toggle');
     const currentTheme = localStorage.getItem('theme') || 'light';
+
+    // The settings checkbox is not on the main page. Bind the header switch
+    // on its own so startup still paints Light/Dark, and keep a single listener.
+    if (headerToggle && !headerToggle.dataset.themeBound) {
+        headerToggle.dataset.themeBound = '1';
+        headerToggle.addEventListener('click', () => {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyDocumentTheme(next);
+            const box = document.getElementById('theme-toggle');
+            if (box) box.checked = next === 'dark';
+        });
+    }
+
+    if (!themeToggle) {
+        syncHeaderThemeSwitch(currentTheme);
+        return;
+    }
+    if (themeToggle.dataset.themeBound) return;
+    themeToggle.dataset.themeBound = '1';
+
     themeToggle.checked = currentTheme === 'dark';
-    applyTheme(currentTheme);
+    applyDocumentTheme(currentTheme);
 
     themeToggle.addEventListener('change', function() {
         const theme = this.checked ? 'dark' : 'light';
-        applyTheme(theme);
+        applyDocumentTheme(theme);
     });
 }
 
