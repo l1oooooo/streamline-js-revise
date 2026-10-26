@@ -1,6 +1,7 @@
 // Check of the fit math in src/modules/scaling.js (mirrored here — the module
 // touches the DOM at import time). Run: node test/scaling-fit.test.mjs
 import assert from 'node:assert';
+import { mainStageFit } from '../src/modules/main-stage-fit.js';
 
 const DESIGN_W = 1920, DESIGN_H = 1200, MAX_STRETCH = 1.0;
 // Rigid part of the main page: 168 header + 150 profile/telemetry band +
@@ -133,29 +134,54 @@ function lift(shift, rectTop, rectBottom, visibleHeight) {
     assert.strictEqual(down, 0, 'keyboard down must clear the lift');
 }
 
-// Home/Brewing contain fit (scaling.js useMainCanvas path). The skin stage is
-// 1340×800; scale is uniform and the leftover is a letterbox, not a squash.
-// Subpage assertions above stay on fit() — that path is unchanged.
-const MAIN_W = 1340, MAIN_H = 800;
+// Home/Brewing fill (scaling.js useMainCanvas path, main-stage-fit.js).
+// Uniform scale, then the stage grows on the leftover axis so there is no
+// letterbox and no width cap. Subpage assertions above stay on fit().
 function fitMain(w, h) {
-    const s = Math.min(w / MAIN_W, h / MAIN_H);
-    return { sx: s, sy: s, canvasW: MAIN_W, canvasH: MAIN_H, gutterX: w - MAIN_W * s, gutterY: h - MAIN_H * s };
+    const { scale, stageW, stageH } = mainStageFit(w, h);
+    return {
+        sx: scale,
+        sy: scale,
+        canvasW: stageW,
+        canvasH: stageH,
+        gutterX: w - stageW * scale,
+        gutterY: h - stageH * scale,
+    };
 }
 {
+    const screens = [
+        [1340, 800],
+        [1280, 800],
+        [1920, 1200],
+        [2000, 1200],
+        [1024, 768],
+        [1340, 736],
+        // Galaxy Tab A11, full screen, 1340×800 panel at 213dpi.
+        [1006.57, 600.94],
+        // iPad mini (A17 Pro) landscape: full screen, Safari toolbar shown, collapsed.
+        [1133, 744],
+        [1133, 658],
+        [1133, 687],
+        // Very wide, no width cap.
+        [3440, 800],
+    ];
+    for (const [w, h] of screens) {
+        const f = fitMain(w, h);
+        assert.strictEqual(f.sx, f.sy, `${w}x${h} stays uniform`);
+        assert.ok(Math.abs(f.gutterX) < 0.05 && Math.abs(f.gutterY) < 0.05, `${w}x${h} gutters ${f.gutterX}, ${f.gutterY}`);
+        assert.ok(f.canvasW + 0.05 >= 1340 && f.canvasH + 0.05 >= 800, `${w}x${h} stage ${f.canvasW}x${f.canvasH} shrank`);
+    }
+
     const exact = fitMain(1340, 800);
     assert.strictEqual(exact.sx, 1);
-    assert.strictEqual(exact.sy, 1);
-    assert.ok(Math.abs(exact.gutterX) < 0.5 && Math.abs(exact.gutterY) < 0.5, '1340x800 fills the stage');
+    assert.ok(Math.abs(exact.canvasW - 1340) < 0.01 && Math.abs(exact.canvasH - 800) < 0.01);
 
-    const tablet = fitMain(1920, 1200);
-    assert.strictEqual(tablet.sx, tablet.sy, 'main stage stays uniform on a 16:10 panel');
-    assert.ok(tablet.gutterY > 1, '16:10 panel letterboxes the shorter stage');
-    assert.ok(Math.abs(tablet.gutterX) < 0.5, '16:10 panel meets the stage width');
+    const tab = fitMain(1006.57, 600.94);
+    assert.ok(Math.abs(tab.canvasW - 1340) < 1 && Math.abs(tab.canvasH - 800) < 1, `Tab A11 stage ${tab.canvasW}x${tab.canvasH}`);
 
-    const short = fitMain(1340, 736);
-    assert.strictEqual(short.sx, short.sy);
-    assert.ok(Math.abs(short.gutterY) < 0.5, 'short panel meets the stage height');
-    assert.ok(short.gutterX > 1, 'short panel letterboxes the sides');
+    const wide = fitMain(3440, 800);
+    assert.ok(wide.canvasW > 1340, 'a wide screen grows the stage instead of capping it');
+    assert.ok(Math.abs(wide.canvasH - 800) < 0.01);
 }
 
 console.log('ok — scaling fit math');

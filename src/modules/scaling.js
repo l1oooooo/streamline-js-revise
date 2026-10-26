@@ -1,10 +1,12 @@
+import { mainStageFit } from './main-stage-fit.js';
+
 let isInitialScaleDone = false; // module-level: only first initScaling call adds .scaled
 
 export function initScaling() {
     const viewport = document.getElementById('scaling-container');
     const content = document.getElementById('scaled-content');
-    // Subpages stay on the 1920×1200 elastic canvas. The Home/Brewing skin is a
-    // fixed 1340×800 stage (decaid-custom-skin), contained in the viewport.
+    // Subpages stay on the 1920×1200 elastic canvas. The Home/Brewing skin fills
+    // the viewport from the 1340×800 design (main-stage-fit.js).
     const SUB_W = 1920;
     const SUB_H = 1200;
     const MAIN_W = 1340;
@@ -148,26 +150,31 @@ export function initScaling() {
             keyboardShift = 0;
         }
 
-        // Home/Brewing uses the skin's 1340×800 stage, contained (uniform scale,
-        // letterbox). Subpages keep the elastic 1920 canvas: width fills, the scale
-        // stays uniform, and the canvas takes however many design rows the screen
-        // leaves. Taller-than-16:10 screens GROW past 1200 rows and shorter ones
-        // SHRINK, down to the rigid part of a subpage that still assumes that
-        // canvas. Below 1920:1010 the layout would clip, so those screens fall
-        // back to the TCL-style independent x/y squash, clamped so round controls
-        // don't visibly turn into ellipses.
+        // Home/Brewing fills the screen. The stage stays 1340×800 on the tight
+        // axis and grows on the other, so a tablet with a different aspect gets
+        // the extra space in the flexible rows instead of a letterbox. Subpages
+        // keep the elastic 1920 canvas: width fills, the scale stays uniform,
+        // and the canvas takes however many design rows the screen leaves.
+        // Taller-than-16:10 screens GROW past 1200 rows and shorter ones SHRINK,
+        // down to the rigid part of a subpage that still assumes that canvas.
+        // Below 1920:1010 the layout would clip, so those screens fall back to
+        // the TCL-style independent x/y squash, clamped so round controls don't
+        // visibly turn into ellipses.
         const onMain = useMainCanvas();
         const designW = onMain ? MAIN_W : SUB_W;
         const designH = onMain ? MAIN_H : SUB_H;
         const MIN_CANVAS_HEIGHT = 1010;
         let sx = screenWidth / designW;
         let sy = screenHeight / designH;
+        let canvasWidth = designW;
         let canvasHeight = designH;
 
         if (onMain) {
-            const scale = Math.min(sx, sy);
-            sx = scale;
-            sy = scale;
+            const fit = mainStageFit(screenWidth, screenHeight);
+            sx = fit.scale;
+            sy = fit.scale;
+            canvasWidth = fit.stageW;
+            canvasHeight = fit.stageH;
         } else if (screenHeight / sx >= MIN_CANVAS_HEIGHT) {
             sy = sx;
             canvasHeight = screenHeight / sx;
@@ -193,10 +200,14 @@ export function initScaling() {
         sx *= uiZoom;
         sy *= uiZoom;
 
-        // Cap at 2.0x to prevent excessive scale on very high-DPI displays
+        // Cap at 2.0x to prevent excessive scale on very high-DPI displays.
+        // The Home stage is sized to fill, so capping it would bring the
+        // letterbox back. A zoomed main page still caps, same as before.
         const maxScale = 2.0;
-        if (sx > maxScale) sx = maxScale;
-        if (sy > maxScale) sy = maxScale;
+        if (!onMain || uiZoom > 1) {
+            if (sx > maxScale) sx = maxScale;
+            if (sy > maxScale) sy = maxScale;
+        }
 
         let offsetX, offsetY;
         if (uiZoom > 1.0) {
@@ -211,7 +222,7 @@ export function initScaling() {
             // zoomed main page stays left-anchored. The 1920 subpage path still
             // right-anchors while the GHC column is on the canvas edge.
             const ghcVisible = !onMain && document.getElementById('ghc-controls')?.style.display === 'flex';
-            offsetX = ghcVisible ? screenWidth - designW * sx : 0;
+            offsetX = ghcVisible ? screenWidth - canvasWidth * sx : 0;
             offsetY = 0;
             // Option C: allow scroll so no content is permanently inaccessible when zoomed.
             // On tablets this enables touch-scroll/pan to reach the chart and data panels.
@@ -219,7 +230,7 @@ export function initScaling() {
         } else {
             // Default: center whatever residual gap the stretch clamp left behind
             // (zero on the grow path -- the canvas fits the screen exactly there)
-            offsetX = (screenWidth - designW * sx) / 2;
+            offsetX = (screenWidth - canvasWidth * sx) / 2;
             offsetY = (screenHeight - canvasHeight * sy) / 2;
             viewport.style.overflow = 'hidden';
             // Not meant to be scrollable here -- positioning is done entirely via the
@@ -237,14 +248,13 @@ export function initScaling() {
         // out when the result is identical to the last pass so a keyboard's
         // per-frame resize storm doesn't re-write the transform or re-fire
         // streamline:scaleupdate, whose listeners do real layout work.
-        const geometry = `${screenWidth}|${screenHeight}|${canvasHeight}|${sx}|${sy}|${offsetX}|${offsetY}`;
+        const geometry = `${screenWidth}|${screenHeight}|${canvasWidth}|${canvasHeight}|${sx}|${sy}|${offsetX}|${offsetY}`;
         if (geometry === lastGeometry) return;
         lastGeometry = geometry;
 
-        content.style.width = `${designW}px`;
+        content.style.width = `${canvasWidth}px`;
         content.style.height = `${canvasHeight}px`;
-        // Letterbox matches the skin stage. Subpages keep the page background.
-        viewport.style.backgroundColor = onMain ? '#d6d3d1' : '';
+        viewport.style.backgroundColor = '';
         content.style.transformOrigin = 'top left';
         content.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${sx}, ${sy})`;
 

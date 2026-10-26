@@ -7,7 +7,7 @@ Read this when changing HTML, shared DOM updates, responsive scaling, themes, ac
 - `index.html`: persistent shell and main-page markup.
 - `src/profiles/*.html` and `src/settings/settings.html`: router-injected subpages.
 - `src/modules/ui.js` and feature modules: DOM updates and interactions.
-- `src/modules/scaling.js`: fixed-layout scaling and orientation behavior. Home and Brewing (`#main-page`) use a contained 1340×800 stage; subpages stay on the elastic 1920 canvas. `streamline:mainpagehidden` and `streamline:mainpagevisible` switch the two. Skin CSS is `src/css/home-skin.css` (linked last) and Geist Variable is bundled under `src/ui/fonts/geist/`.
+- `src/modules/scaling.js`: fixed-layout scaling and orientation behavior. Home and Brewing (`#main-page`) fill the screen from a 1340×800 stage: uniform scale, then the stage grows on the leftover axis (`main-stage-fit.js`), with no letterbox and no width cap. Subpages stay on the elastic 1920 canvas. `streamline:mainpagehidden` and `streamline:mainpagevisible` switch the two. Skin CSS is `src/css/home-skin.css` (linked last) and Geist Variable is bundled under `src/ui/fonts/geist/`.
 - `src/css/main.css`, `src/css/dark-mode.css`, and feature CSS files: hand-maintained CSS.
 - `src/input.css` plus `tailwind.config.js`: Tailwind input and scan configuration.
 - `src/css/app.css`: generated Tailwind/daisyUI output.
